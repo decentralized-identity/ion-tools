@@ -1,0 +1,31 @@
+{
+  "name": "@decentralized-identity/ion-sdk",
+  "version": "0.0.1",
+  "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
+  "repository": "https://github.com/decentralized-identity/ion-tools",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@decentralized-identity/ion-sdk": "0.4.2",
+    "browserify": "^17.0.0",
+    "esmify": "^2.1.1",
+    "fs-extra": "9.1.0",
+    "npx": "10.2.2",
+    "gulp": "4.0.2",
+    "gulp-concat": "2.6.1",
+    "gulp-terser": "2.0.1",
+    "merge-stream": "2.0.0"
+  },
+  "scripts": {
+    "build": "npm run ionize",
+    "install": "npm i @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
+    "ionize": "npx browserify -p esmify ./ionize/js/lib.js -o ./dist/ionize.js && gulp ionize"
+  },
+  "dependencies": {
+    "@transmute/did-key-bls12381": "^0.2.1-unstable.35",
+    "@transmute/did-key-ed25519": "^0.2.1-unstable.35",
+    "@transmute/did-key-p384": "^0.2.1-unstable.20",
+    "@transmute/did-key-secp256k1": "^0.2.1-unstable.35",
+    "@transmute/did-key-x25519": "^0.2.1-unstable.35",
+    "@transmute/did-key.js": "^0.2.1-unstable.35"
+  }
+}
