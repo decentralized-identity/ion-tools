@@ -7,23 +7,19 @@ var Ionize = globalThis.Ionize = {
       case 'secp256k1':
       case 'ES256K':
       default:
-        return await RawIonSdk.IonKey.generateEs256kOperationKeyPair();
+        let keys = await RawIonSdk.IonKey.generateEs256kOperationKeyPair();
+        return {
+          publicJwk: keys[0],
+          privateJwk: keys[1]
+        }
     }
   },
-  async generateDidPayload (replacePatch = {}) {
-    const recoveryKeys = await this.generateKeyPair();
-    const updateKeys = await this.generateKeyPair();
+  async generateDidPayload (content = {}) {
     return {
       operation: 'create',
-      patches: [replacePatch],
-      recovery: {
-        publicJwk: recoveryKeys[0],
-        privateJwk: recoveryKeys[1]
-      },
-      update: {
-        publicJwk: updateKeys[0],
-        privateJwk: updateKeys[1]
-      }
+      content: content,
+      recovery: await this.generateKeyPair(),
+      update: await this.generateKeyPair()
     };
   }
 };
@@ -32,7 +28,7 @@ Ionize.DID = class {
   constructor (options = {}) {
     this._ops = options.ops || [];
     if (!this._ops[0]) {
-      this._ops[0] = Ionize.generateDidPayload(options.initialPatch || {});
+      this._ops[0] = Ionize.generateDidPayload(options.content || {});
     }
   }
 
@@ -49,7 +45,7 @@ Ionize.DID = class {
     this._longForm = this._longForm || RawIonSdk.IonDid.createLongFormDid({
       recoveryKey: create.recovery.publicJwk,
       updateKey: create.update.publicJwk,
-      document: create.patches[0]
+      document: create.content
     });
     return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
   }
@@ -62,7 +58,7 @@ Ionize.DID = class {
         return RawIonSdk.IonRequest.createCreateRequest({
           recoveryKey: op.recovery.publicJwk,
           updateKey: op.update.publicJwk,
-          document: op.patches[0]
+          document: op.content
         });
     }
   }
