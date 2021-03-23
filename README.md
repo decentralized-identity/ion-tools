@@ -18,7 +18,7 @@ ION is a high-level library that wraps the lower-level ION SDK to make interfaci
 The `ION.DID` class enables you to generate a fully usable ION DID in a single line of code. The class is invoked as follows:
 
 ```js
-let authnKeys = ION.generateKeyPair();
+let authnKeys = await ION.generateKeyPair();
 let did = new ION.DID({
   content: {
     publicKeys: [
