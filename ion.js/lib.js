@@ -2,6 +2,7 @@
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 
 var ION = globalThis.ION = {
+  SDK: RawIonSdk,
   async generateKeyPair (type) {
     switch (type) {
       case 'secp256k1':
