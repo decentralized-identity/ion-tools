@@ -7,10 +7,22 @@
   </head>
 
   <body>
+
+    <button id="generate_did">Generate Test DID</button>
+
+    <h3>Short-Form DID URI</h3>
+    <pre id="print_short"></pre>
+
+    <h3>Long-Form DID URI</h3>
+    <pre id="print_long"></pre>
+
+    <h3>Create DID Request Object</h3>
+    <pre id="print_request"></pre>
+
     <script src="../dist/ion.js"></script>
     <script>
 
-      window.generateDID = async function(){
+      async function generateDID(){
         let authnKeys = await ION.generateKeyPair();
         return new ION.DID({
           content: {
@@ -31,7 +43,16 @@
             ]
           }
         });
-      }
+      };
+
+      JSON.pretty = json => JSON.stringify(json, null, 2)
+
+      generate_did.addEventListener('click', async e => {
+        let did = await generateDID();
+        print_short.textContent = JSON.pretty(await did.getURI('short'))
+        print_long.textContent = JSON.pretty(await did.getURI('long'))
+        print_request.textContent = JSON.pretty(await did.generateRequest(0))
+      });
     </script>
   </body>
 
