@@ -1,7 +1,7 @@
 
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 
-var Ionize = globalThis.Ionize = {
+var ION = globalThis.ION = {
   async generateKeyPair (type) {
     switch (type) {
       case 'secp256k1':
@@ -24,11 +24,11 @@ var Ionize = globalThis.Ionize = {
   }
 };
 
-Ionize.DID = class {
+ION.DID = class {
   constructor (options = {}) {
     this._ops = options.ops || [];
     if (!this._ops[0]) {
-      this._ops[0] = Ionize.generateDidPayload(options.content || {});
+      this._ops[0] = ION.generateDidPayload(options.content || {});
     }
   }
 
@@ -64,4 +64,4 @@ Ionize.DID = class {
   }
 };
 
-export { Ionize };
+export { ION };

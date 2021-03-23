@@ -9,17 +9,17 @@ Run the following commands to use the ION tools in this repo:
 1. `npm install`
 2. `npm run build`
 
-## Ionize
+## ION.js
 
-Ionize is a high-level library that wraps the lower-level ION SDK to make interfacing with ION components as simple as possible.
+ION is a high-level library that wraps the lower-level ION SDK to make interfacing with ION components as simple as possible.
 
-### `new Ionize.DID()`
+### `new ION.DID()`
 
-The `Ionize.DID` class enables you to generate a fully usable ION DID in a single line of code. The class is invoked as follows:
+The `ION.DID` class enables you to generate a fully usable ION DID in a single line of code. The class is invoked as follows:
 
 ```js
-let authnKeys = Ionize.generateKeyPair();
-let did = new Ionize.DID({
+let authnKeys = ION.generateKeyPair();
+let did = new ION.DID({
   content: {
     publicKeys: [
       {
@@ -40,35 +40,35 @@ let did = new Ionize.DID({
 });
 ```
 
-The `Ionize.DID` class provides the following methods:
+The `ION.DID` class provides the following methods:
 
 #### `getURI()` *async*
 
-The `getURI()` method of the `Ionize.DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
+The `getURI()` method of the `ION.DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
 
 ```js
-let did = new Ionize.DID({ ... });
+let did = new ION.DID({ ... });
 let longFormURI = await did.getURI();
 let shortFormURI = await did.getURI('short');
 ```
 
 #### `getAllOperations()` *async*
 
-The `getAllOperations()` method of the `Ionize.DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
+The `getAllOperations()` method of the `ION.DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
 
 ```js
-let did = new Ionize.DID({ ... });
+let did = new ION.DID({ ... });
 let operations = await did.getAllOperations();
 ```
 
-### `Ionize.generateKeyPair()` *async*
+### `ION.generateKeyPair()` *async*
 
 The `generateKeyPair` method is an async function that makes generation of keys effortless. The only currently supported key type is `secp256k1`, but more will be added in the near future.
 
 Example:
 
 ```js
-let keypair = await Ionize.generateKeyPair();
+let keypair = await ION.generateKeyPair();
 
 /* RETURNS:
 {

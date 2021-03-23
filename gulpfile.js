@@ -6,21 +6,21 @@ const terser = require('gulp-terser');
 const mergeStreams = require('merge-stream');
 
 
-const ionizeDist = 'dist';
-const ionizeFiles = [
-  'dist/ionize.js'
+const ionJsDist = 'dist';
+const ionJsFiles = [
+  'dist/ion.js'
 ];
-async function ionizeCompile (){
+async function ionJsCompile (){
   return new Promise(async resolve => {
-    await fs.ensureDir(ionizeDist);
+    await fs.ensureDir(ionJsDist);
     mergeStreams([
-      gulp.src(ionizeFiles)
+      gulp.src(ionJsFiles)
         .pipe(terser())
-        .pipe(concat('ionize.min.js'))
-        .pipe(gulp.dest(ionizeDist))
+        .pipe(concat('ion.min.js'))
+        .pipe(gulp.dest(ionJsDist))
 
     ]).on('finish', () => resolve())
   });
 }
 
-gulp.task('ionize', ionizeCompile);
+gulp.task('ion.js', ionJsCompile);
