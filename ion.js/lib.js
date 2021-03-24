@@ -36,8 +36,10 @@ var ION = globalThis.ION = {
 ION.POW = class {
   constructor() {}
 
-  async submitIonRequest (getChallengeUri, solveChallengeUri, requestBody) {
-    ProodOfWorkSDK.submitIonRequest(getChallengeUri, solveChallengeUri, JSON.stringify(requestBody));
+  async submitIonRequest (requestBody, getChallengeUri, solveChallengeUri) {
+    const defaultGetChallengeUri = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge';
+    const defaultSolveChallengeUri = 'https://beta.ion.msidentity.com/api/v1.0/operations'
+    ProodOfWorkSDK.submitIonRequest(getChallengeUri || defaultGetChallengeUri, solveChallengeUri || defaultSolveChallengeUri, JSON.stringify(requestBody));
   }
 }
 
