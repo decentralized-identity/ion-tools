@@ -69,7 +69,7 @@
 
       submit_pow.addEventListener('click', async () => {
         submit_pow.textContent = "submitting request... look at console to see progress and result"
-        await (new ION.POW).submitIonRequest(request)
+        await new ION.AnchorRequest(request).submit();
       })
     </script>
   </body>

@@ -1,6 +1,6 @@
 const fetch = require('cross-fetch');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
-const ProodOfWorkSDK = require('ion-pow-sdk');
+const ProofOfWorkSDK = require('ion-pow-sdk');
 
 var ION = globalThis.ION = {
   SDK: RawIonSdk,
@@ -33,13 +33,22 @@ var ION = globalThis.ION = {
   }
 };
 
-ION.POW = class {
-  constructor() {}
-
-  async submitIonRequest (requestBody, getChallengeUri, solveChallengeUri) {
-    const defaultGetChallengeUri = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge';
-    const defaultSolveChallengeUri = 'https://beta.ion.msidentity.com/api/v1.0/operations'
-    ProodOfWorkSDK.submitIonRequest(getChallengeUri || defaultGetChallengeUri, solveChallengeUri || defaultSolveChallengeUri, JSON.stringify(requestBody));
+ION.AnchorRequest = class {
+  constructor(requestBody, options = {}) {
+    this.body = requestBody;
+    this.challengeEndpoint = options.challengeEndpoint;
+    this.solutionEndpoint = options.solutionEndpoint;
+    if (!this.challengeEndpoint || !this.solutionEndpoint) {
+      this.challengeEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge';
+      this.solutionEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/operations';
+    }
+  }
+  async submit() {
+    return ProofOfWorkSDK.submitIonRequest(
+      this.challengeEndpoint,
+      this.solutionEndpoint,
+      JSON.stringify(this.body)
+    );
   }
 }
 
