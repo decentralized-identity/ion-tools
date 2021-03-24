@@ -1,6 +1,6 @@
-
 const fetch = require('cross-fetch');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
+const ProodOfWorkSDK = require('ion-pow-sdk');
 
 var ION = globalThis.ION = {
   SDK: RawIonSdk,
@@ -32,6 +32,14 @@ var ION = globalThis.ION = {
             });
   }
 };
+
+ION.POW = class {
+  constructor() {}
+
+  async submitIonRequest (getChallengeUri, solveChallengeUri, requestBody) {
+    ProodOfWorkSDK.submitIonRequest(getChallengeUri, solveChallengeUri, JSON.stringify(requestBody));
+  }
+}
 
 ION.DID = class {
   constructor (options = {}) {

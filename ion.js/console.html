@@ -18,6 +18,7 @@
   <body>
 
     <button id="generate_did">Generate Test DID</button>
+    <button id="submit_pow">Test submit DID</button>
 
     <h3>Short-Form DID URI</h3>
     <pre id="print_short"></pre>
@@ -55,13 +56,21 @@
       };
 
       JSON.pretty = json => JSON.stringify(json, null, 2)
+      let request;
 
       generate_did.addEventListener('click', async e => {
         let did = await generateDID();
         print_short.textContent = JSON.pretty(await did.getURI('short'))
         print_long.textContent = JSON.pretty(await did.getURI('long'))
-        print_request.textContent = JSON.pretty(await did.generateRequest(0))
+
+        request = await did.generateRequest(0)
+        print_request.textContent = JSON.pretty(request)
       });
+
+      submit_pow.addEventListener('click', async () => {
+        submit_pow.textContent = "submitting request... look at console to see progress and result"
+        await (new ION.POW).submitIonRequest('https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge', 'https://beta.ion.msidentity.com/api/v1.0/operations', request)
+      })
     </script>
   </body>
 
