@@ -1,3 +1,4 @@
+const fetch = require('cross-fetch');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 const ProodOfWorkSDK = require('ion-pow-sdk');
 
@@ -22,6 +23,13 @@ var ION = globalThis.ION = {
       recovery: await this.generateKeyPair(),
       update: await this.generateKeyPair()
     };
+  },
+  async resolve(didUri, options = {}){
+    return fetch((options.nodeEndpoint || 'https://beta.discover.did.microsoft.com/1.0/identifiers/') + didUri)
+            .then(response => {
+              if (response.status >= 400) throw new Error('Not Found');
+              return response.json();
+            });
   }
 };
 
