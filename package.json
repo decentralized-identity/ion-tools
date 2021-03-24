@@ -13,13 +13,13 @@
     "gulp-concat": "2.6.1",
     "gulp-terser": "2.0.1",
     "http-server": "0.12.3",
-    "ion-pow-sdk": "1.0.12",
+    "ion-pow-sdk": "1.0.14",
     "merge-stream": "2.0.0",
     "npx": "10.2.2"
   },
   "scripts": {
     "build": "npm run ionJs",
-    "install": "npm i ion-pow-sdk@1.0.12 @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
+    "install": "npm i ion-pow-sdk@1.0.14 @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
     "ionJs": "npx browserify -p esmify ./ion.js/lib.js -o ./dist/ion.js && gulp ion.js",
     "test-html": "http-server -c-1"
   },
