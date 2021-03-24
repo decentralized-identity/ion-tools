@@ -199,21 +199,26 @@ RETURN VALUE:
 }
 ```
 
-### `new ION.POW()`
+### `new ION.AnchorRequest(REQUEST_BODY, OPTIONS)`
 
-The `ION.POW` class enables you submit proof of work requests as following:
+The `ION.AnchorRequest` class is used to submit an ION operation for anchoring with an ION node that implements a challenge and response gated ION node endpoint. The class instantiation arguments are as follows:
 
-#### `submitIonRequest(REQUEST_BODY_JSON, CHALLENGE_URL, OPERATION_URL)` *async*
+1. `REQUEST_BODY` - Object, *required*
+2. `OPTIONS` - Object, *optional*: An object for passing the following options used in the resolution request:
+    - `challengeEndpoint` - URI String, *optional*: URI of the challenge endpoint for the ION node you are submitting to.
+    - `solutionEndpoint` - URI String, *optional*: URI of the solution endpoint for the ION node you are submitting your completed challenge to.
 
-Submit an operation with proof of work to the endpoints specified. The function gets the challenge from the CHALLENGE_URL, performs proof of work, then submits the REQUEST_BODY_JSON to the OPERATION_URL.
+> NOTE: Endpoint URIs will default to `https://beta.ion.msidentity.com` if not supplied
 
-Note: The urls are optional, will default to `https://beta.ion.msidentity.com` if not supplied
+#### `submit()` *async*
 
+Submits the ION operation request, per the request object and endpoints set during class instantiation.
+
+```javascript
+const did = new ION.DID();
+const requestBody = did.generateRequest() ;
+const request = new ION.AnchorRequest(requestBody);
+let response = await request.submit();
 ```
-const ionDid = new ION.DID()
-const request = ionDid.generateRequest() 
-const pow = new ION.POW()
-await pow.submitIonRequest(request)
-```
 
-with request being the JOSN result of the ION.DID.generateRequest() function.
+> NOTE: The `requestBody` value above is the JSON representation of the ION operation produced by the ION.DID class's `generateRequest()` function.

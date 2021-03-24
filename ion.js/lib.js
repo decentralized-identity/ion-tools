@@ -78,7 +78,7 @@ ION.DID = class {
     return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
   }
 
-  async generateRequest (payload) {
+  async generateRequest (payload = 0) {
     const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
     switch (op.operation) {
       case 'create':
