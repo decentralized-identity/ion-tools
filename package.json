@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "npm run ionJs",
-    "install": "npm i @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
+    "install": "npm i cross-fetch @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
     "ionJs": "npx browserify -p esmify ./ion.js/lib.js -o ./dist/ion.js && gulp ion.js"
   },
   "dependencies": {
@@ -26,6 +26,7 @@
     "@transmute/did-key-p384": "^0.2.1-unstable.20",
     "@transmute/did-key-secp256k1": "^0.2.1-unstable.35",
     "@transmute/did-key-x25519": "^0.2.1-unstable.35",
-    "@transmute/did-key.js": "^0.2.1-unstable.35"
+    "@transmute/did-key.js": "^0.2.1-unstable.35",
+    "cross-fetch": "^3.1.2"
   }
 }

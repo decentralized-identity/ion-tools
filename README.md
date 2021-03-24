@@ -44,7 +44,7 @@ The `ION.DID` class provides the following methods:
 
 #### `getURI()` *async*
 
-The `getURI()` method of the `ION.DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
+The `getURI` method of the `ION.DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
 
 ```js
 let did = new ION.DID({ ... });
@@ -54,7 +54,7 @@ let shortFormURI = await did.getURI('short');
 
 #### `generateRequest()` *async*
 
-The `generateRequest()` method of the `ION.DID` class is an async function that takes either a `number`, in reference to an operation index, or a direct operation payload and returns an operation request object that can be published via an ION node.
+The `generateRequest` method of the `ION.DID` class is an async function that takes either a `number`, in reference to an operation index, or a direct operation payload and returns an operation request object that can be published via an ION node.
 
 ```js
 let did = new ION.DID({ ... });
@@ -106,7 +106,7 @@ RETURN VALUE:
 
 #### `getAllOperations()` *async*
 
-The `getAllOperations()` method of the `ION.DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
+The `getAllOperations` method of the `ION.DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
 
 ```js
 let did = new ION.DID({ ... });
@@ -139,4 +139,65 @@ RETURN VALUE:
   }
 }
 ```
+
+#### `ION.resolve(DID_URI, OPTIONS)` *async*
+
+The `resolve` library method resolves a DID URI string and returns the associated DID resolution response object. The method arguments are as follows:
+
+1. `DID_URI` - URI String, *required*
+2. `OPTIONS` - Object, *optional*: An object for passing the following options used in the resolution request:
+    - `nodeEndpoint` - String, *optional*: URI of the node you desire to contact for resolution. If you are running your own node, use this to pass in your node's resolution endpoint.
+
+```js
+const response = await ION.resolve('did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y...');
+
+RETURN VALUE:
+{
+    "@context": "https://w3id.org/did-resolution/v1",
+    "didDocument": {
+        "id": "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA",
+        "@context": [
+            "https://www.w3.org/ns/did/v1",
+            {
+                "@base": "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA"
+            }
+        ],
+        "service": [
+            {
+                "id": "#domain-1",
+                "type": "LinkedDomains",
+                "serviceEndpoint": "https://foo.example.com"
+            }
+        ],
+        "verificationMethod": [
+            {
+                "id": "#key-1",
+                "controller": "",
+                "type": "EcdsaSecp256k1VerificationKey2019",
+                "publicKeyJwk": {
+                    "crv": "secp256k1",
+                    "kty": "EC",
+                    "x": "IQoF6bqUDvBhGWUglcM7uq8BwqsEw3zAKMjPPIs_uW8",
+                    "y": "szWeFJDgOVJ2vWm9u6tZoRugeAQQNQ6YR7ZbgiUfnio"
+                }
+            }
+        ],
+        "authentication": [
+            "#key-1"
+        ]
+    },
+    "didDocumentMetadata": {
+        "method": {
+            "published": false,
+            "recoveryCommitment": "EiBPyOePlnmJ122lDhQJWJ0grIExBwjreUfOe36boqm-jg",
+            "updateCommitment": "EiCfGApgMBs653vH-JAxgqBNqkY_7XjAMInCR5o04bXRFw"
+        },
+        "equivalentId": [
+            "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA"
+        ]
+    }
+}
+```
+
+
 
