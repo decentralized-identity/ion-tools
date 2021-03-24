@@ -140,3 +140,16 @@ RETURN VALUE:
 }
 ```
 
+### `new ION.POW()`
+
+The `ION.POW` class enables you submit proof of work requests as following:
+
+#### `submitIonRequest()` *async*
+```
+const ionDid = new ION.DID()
+const request = ionDid.generateRequest() 
+const pow = new ION.POW()
+await pow.submitIonRequest('https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge', 'https://beta.ion.msidentity.com/api/v1.0/operations', request)
+```
+
+with request being the JOSN stringified result of the ION.DID.generateRequest() function.

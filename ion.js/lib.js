@@ -29,7 +29,6 @@ ION.POW = class {
   constructor() {}
 
   async submitIonRequest (getChallengeUri, solveChallengeUri, requestBody) {
-    JSON.parse
     ProodOfWorkSDK.submitIonRequest(getChallengeUri, solveChallengeUri, JSON.stringify(requestBody));
   }
 }
