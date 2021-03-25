@@ -1,9 +1,13 @@
 {
-  "name": "@decentralized-identity/ion-sdk",
+  "name": "@decentralized-identity/ion-tools",
   "version": "0.0.1",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
-  "repository": "https://github.com/decentralized-identity/ion-tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decentralized-identity/ion-tools.git"
+  },
   "license": "Apache-2.0",
+  "main": "dist/ion.min.js",
   "devDependencies": {
     "@decentralized-identity/ion-sdk": "0.4.2",
     "browserify": "^17.0.0",
@@ -19,7 +23,8 @@
   },
   "scripts": {
     "build": "npm run ionJs",
-    "install": "npm i ion-pow-sdk@1.0.14 cross-fetch @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
+    "install": "npm run deps && npm run build",
+    "deps": "npm i ion-pow-sdk@1.0.14 cross-fetch @transmute/did-key.js@latest @transmute/did-key-ed25519@latest @transmute/did-key-x25519@latest @transmute/did-key-bls12381@latest @transmute/did-key-secp256k1@latest @transmute/did-key-p384@latest --save",
     "ionJs": "npx browserify -p esmify ./ion.js/lib.js -o ./dist/ion.js && gulp ion.js"
   },
   "dependencies": {
@@ -30,5 +35,15 @@
     "@transmute/did-key-x25519": "^0.2.1-unstable.35",
     "@transmute/did-key.js": "^0.2.1-unstable.35",
     "cross-fetch": "^3.1.2"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/decentralized-identity/ion-tools/issues"
+  },
+  "homepage": "https://github.com/decentralized-identity/ion-tools#readme",
+  "keywords": [
+    "ION",
+    "decentralized",
+    "identity"
+  ],
+  "author": "Decentralized Identity Foundation"
 }
