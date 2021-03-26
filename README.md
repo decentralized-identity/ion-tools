@@ -8,6 +8,17 @@ Run the following commands to use the ION tools in this repo:
 
 1. `npm install`
 2. `npm run build`
+3. files are output to `/dist` as `ion.js` and `ion.min.js`
+
+To use the ION.js library in your code, you have two options based on whether you're operating in a browser or Node.js environment:
+
+**Browser**
+
+Simply include the js library's file from `/dist` in your web app the way you would any other module, using either `<script src="ion.js" type="module">` or `import 'ion.js'`. The module will add the `ION` variable to the global scope.
+
+**Node.js**
+
+For use in Node.js, you can include the package via CommonJS with `require('@decentralized-identity/ion-tools')` or ESM with `import 'ion.js'`.
 
 ## ION.js
 
