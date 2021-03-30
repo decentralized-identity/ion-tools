@@ -1,6 +1,6 @@
 {
   "name": "@decentralized-identity/ion-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
   "repository": {
     "type": "git",
@@ -28,6 +28,9 @@
     "ionJs": "npx browserify -p esmify ./ion.js/lib.js -o ./dist/ion.js && gulp ion.js"
   },
   "dependencies": {
+    "@decentralized-identity/ion-sdk": "0.4.2",
+    "browserify": "^17.0.0",
+    "esmify": "^2.1.1",
     "@transmute/did-key-bls12381": "^0.2.1-unstable.35",
     "@transmute/did-key-ed25519": "^0.2.1-unstable.35",
     "@transmute/did-key-p384": "^0.2.1-unstable.20",
