@@ -18,7 +18,7 @@ Simply include the js library's file from `/dist` in your web app the way you wo
 
 **Node.js**
 
-For use in Node.js, you can include the package via CommonJS with `require('@decentralized-identity/ion-tools')` or ESM with `import 'ion.js'`.
+For use in Node.js, you can include the package via `const ION = require('@decentralized-identity/ion-tools')`.
 
 ## ION.js
 

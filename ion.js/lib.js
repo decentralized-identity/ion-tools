@@ -92,4 +92,4 @@ ION.DID = class {
   }
 };
 
-export { ION };
+module.exports = ION;

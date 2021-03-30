@@ -1,13 +1,13 @@
 {
   "name": "@decentralized-identity/ion-tools",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/decentralized-identity/ion-tools.git"
   },
   "license": "Apache-2.0",
-  "main": "dist/ion.min.js",
+  "main": "ion.js/lib.js",
   "scripts": {
     "build": "npm run ionJs",
     "install": "npm run deps && npm run build",
