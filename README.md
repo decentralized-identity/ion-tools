@@ -7,8 +7,13 @@ This repo includes tools and utilities to make working with the ION network and 
 Run the following commands to use the ION tools in this repo:
 
 1. `npm install`
-2. `npm run build`
-3. files are output to `/dist` as `ion.js` and `ion.min.js`
+
+If you want to generate the browser bundle, continue with these steps:
+
+2. `cd` into the `@decentralized-identity/ion-tools` directory
+3. `npm install`
+4. `npm run build`
+5. Files are output to `/dist` as `ion.js` and `ion.min.js`
 
 To use the ION.js library in your code, you have two options based on whether you're operating in a browser or Node.js environment:
 
@@ -126,27 +131,44 @@ let operations = await did.getAllOperations();
 
 ### `ION.generateKeyPair()` *async*
 
-The `generateKeyPair` method is an async function that makes generation of keys effortless. The only currently supported key type is `secp256k1`, but more will be added in the near future.
+The `generateKeyPair` method is an async function that makes generation of keys effortless. The currently supported key types are `secp256k1` and `Ed25519` (more are in the process of being added).
 
 Example:
 
 ```js
-let keypair = await ION.generateKeyPair();
+let secp256k1KeyPair = await ION.generateKeyPair('secp256k1');
 
 RETURN VALUE:
 {
-  publicJwk: {
-    crv: "secp256k1",
-    kty: "EC",
-    x: "L60Mcg_4uhbAO4RaL1eAJ5CKVqBD8cm6PrBuua4gyGA",
-    y: "wwVm2dFCamLZkpGTlRMhdASmPtWuPW9Eg1wLfziwEAs"
+  "publicJwk": {
+    "crv": "secp256k1",
+    "kty": "EC",
+    "x": "L60Mcg_4uhbAO4RaL1eAJ5CKVqBD8cm6PrBuua4gyGA",
+    "y": "wwVm2dFCamLZkpGTlRMhdASmPtWuPW9Eg1wLfziwEAs"
   },
-  privateJwk: {
-    crv: "secp256k1",
-    d: "kbnyOrsZGaslyeofzDYqMCibWzsRLJb7ZnnQ2rbdJLA",
-    kty: "EC",
-    x: "L60Mcg_4uhbAO4RaL1eAJ5CKVqBD8cm6PrBuua4gyGA",
-    y: "wwVm2dFCamLZkpGTlRMhdASmPtWuPW9Eg1wLfziwEAs"
+  "privateJwk": {
+    "crv": "secp256k1",
+    "d": "kbnyOrsZGaslyeofzDYqMCibWzsRLJb7ZnnQ2rbdJLA",
+    "kty": "EC",
+    "x": "L60Mcg_4uhbAO4RaL1eAJ5CKVqBD8cm6PrBuua4gyGA",
+    "y": "wwVm2dFCamLZkpGTlRMhdASmPtWuPW9Eg1wLfziwEAs"
+  }
+}
+
+let Ed25519KeyPair = await ION.generateKeyPair('Ed25519');
+
+RETURN VALUE:
+{
+  "publicJwk": {
+      "crv": "Ed25519",
+      "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
+      "kty": "OKP"
+  },
+  "privateJwk": {
+      "crv": "Ed25519",
+      "d": "CsUUtvDcTM7EmoNuhLyeGQqSBmrpml1bUdjUAVJvj1I",
+      "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
+      "kty": "OKP"
   }
 }
 ```
@@ -227,7 +249,7 @@ Submits the ION operation request, per the request object and endpoints set duri
 
 ```javascript
 const did = new ION.DID();
-const requestBody = did.generateRequest() ;
+const requestBody = await did.generateRequest() ;
 const request = new ION.AnchorRequest(requestBody);
 let response = await request.submit();
 ```
