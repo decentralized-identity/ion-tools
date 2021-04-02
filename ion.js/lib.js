@@ -1,20 +1,66 @@
 const fetch = require('cross-fetch');
+const randomBytes = require('randombytes');
+const ed25519 = require('@transmute/did-key-ed25519');
+const secp256k1 = require('@transmute/did-key-secp256k1');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 const ProofOfWorkSDK = require('ion-pow-sdk');
+
+async function _generateKeyPair(factory){
+  const keyPair = await factory.generate({
+    secureRandom: () => randomBytes(32)
+  });
+  const { publicKeyJwk, privateKeyJwk } = await keyPair.toJsonWebKeyPair(true);
+  return {
+    publicJwk: publicKeyJwk,
+    privateJwk: privateKeyJwk
+  }
+}
 
 var ION = globalThis.ION = {
   SDK: RawIonSdk,
   async generateKeyPair (type) {
     switch (type) {
+      case 'Ed25519':
+      case 'EdDSA':
+        return await _generateKeyPair(ed25519.Ed25519KeyPair);
+
       case 'secp256k1':
       case 'ES256K':
       default:
-        let keys = await RawIonSdk.IonKey.generateEs256kOperationKeyPair();
-        return {
-          publicJwk: keys[0],
-          privateJwk: keys[1]
-        }
+        return await _generateKeyPair(secp256k1.Secp256k1KeyPair);
     }
+  },
+  async generateJws(params = {}){
+    let method = 'sign';
+    let payload = params.payload;
+    let header = params.header || {};
+    if (params.detached) {
+      method = 'signDetached';
+      payload = payload instanceof Buffer ? payload : Buffer.from(payload);
+      header = Object.assign(header, {
+        b64: false,
+        crit: ['b64']
+      });
+    }
+    switch(params.privateJwk.crv){
+      case 'secp256k1':
+        header = Object.assign(header, {
+          alg: 'ES256K'
+        });
+        return secp256k1.ES256K[method](payload, params.privateJwk, header);
+      default: throw new Error('Unsupported cryptographic type');
+    } 
+  },
+  async validateJws(params = {}){
+    let payload = params.payload;
+    if (payload) payload = payload instanceof Buffer ? payload : Buffer.from(payload);
+    switch(params.privateJwk.crv){
+      case 'secp256k1':
+        return params.payload ? 
+          secp256k1.ES256K.verifyDetached(params.jws, payload, params.privateJwk) : 
+          secp256k1.ES256K.verify(params.jws, params.privateJwk);
+      default: throw new Error('Unsupported cryptographic type');
+    } 
   },
   async generateDidPayload (content = {}) {
     return {

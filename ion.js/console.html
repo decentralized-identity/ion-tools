@@ -12,13 +12,28 @@
         word-break: break-all;
       }
 
+      #generate_jws_form {
+        display: none;
+      }
+
+      :root[did] #generate_jws_form {
+        display: inline-block;
+      }
+
     </style>
   </head>
 
   <body>
 
     <button id="generate_did">Generate Test DID</button>
+    <form id="generate_jws_form">
+      <input id="jws_payload" />
+      <button id="generate_jws">Generate JWS</button>
+    </form>
     <button id="submit_pow" style="display: none;">Test submit DID</button>
+
+    <h3>JWS</h3>
+    <pre id="print_jws"></pre>
 
     <h3>Short-Form DID URI</h3>
     <pre id="print_short"></pre>
@@ -57,15 +72,45 @@
 
       JSON.pretty = json => JSON.stringify(json, null, 2)
       let request;
+      let did;
+      let jws;
 
       generate_did.addEventListener('click', async e => {
-        let did = await generateDID();
+        did = await generateDID();
+        document.documentElement.setAttribute('did', await did.getURI('short'))
         print_short.textContent = JSON.pretty(await did.getURI('short'))
         print_long.textContent = JSON.pretty(await did.getURI('long'))
 
-        request = await did.generateRequest(0)
+        request = await did.generateRequest(0);
         print_request.textContent = JSON.pretty(request)
       });
+
+      generate_jws_form.addEventListener('submit', async e => {
+        e.preventDefault();
+        let payload = jws_payload.value || '';
+        let key = (await did.getOperation(0)).update.privateJwk;
+        jws = await ION.generateJws({
+          privateJwk: key,
+          payload: payload
+        });
+        jwsDetached = await ION.generateJws({
+          detached: true,
+          privateJwk: key,
+          payload: payload
+        });
+        let valid = await ION.validateJws({
+          privateJwk: key,
+          jws: jws
+        });
+        let validDetached = await ION.validateJws({
+          privateJwk: key,
+          jws: jwsDetached,
+          payload: payload
+        });
+        console.log(valid, validDetached);
+        console.log(jws, jwsDetached);
+        print_jws.textContent = jws;
+      })
 
       submit_pow.addEventListener('click', async () => {
         submit_pow.textContent = "submitting request... look at console to see progress and result"
