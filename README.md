@@ -160,17 +160,55 @@ let Ed25519KeyPair = await ION.generateKeyPair('Ed25519');
 RETURN VALUE:
 {
   "publicJwk": {
-      "crv": "Ed25519",
-      "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
-      "kty": "OKP"
+    "crv": "Ed25519",
+    "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
+    "kty": "OKP"
   },
   "privateJwk": {
-      "crv": "Ed25519",
-      "d": "CsUUtvDcTM7EmoNuhLyeGQqSBmrpml1bUdjUAVJvj1I",
-      "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
-      "kty": "OKP"
+    "crv": "Ed25519",
+    "d": "CsUUtvDcTM7EmoNuhLyeGQqSBmrpml1bUdjUAVJvj1I",
+    "x": "WfrBXcm2vliqsQtHBr6xIBXZHEtangbUnmxs2KT0VD0",
+    "kty": "OKP"
   }
 }
+```
+
+### `new ION.signJws(PARAMS)`
+
+The `ION.signJws` method generates a signed JWS output of a provided payload, and accepts the following parameters:
+
+1. `PARAMS` - Object, *required*: An object for passing the following properties used in the resolution request:
+    - `payload` - *required*: The payload to be signed
+    - `privateJwk` - Object, *required*: The JWK object for the private key that will be used to sign
+    - `header` - Object, *optional*: Additional JWK header values.
+    - `detached` - Boolean, *optional*: Pass `true` to output a payload-detached JWS output.
+
+```javascript
+const jws = new ION.signJws({
+  payload: 'hello world',
+  privateJwk: { ... }
+});
+
+// RESULT:
+// eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NKRJVCjK2...
+```
+
+### `new ION.verifyJws(PARAMS)`
+
+The `ION.verifyJws` method verifies a signed JWS output, and accepts the following parameters:
+
+1. `PARAMS` - Object, *required*: An object for passing the following properties used in the resolution request:
+    - `jws` - String, *required*: The JWS to be verified.
+    - `privateJwk` - Object, *required*: The JWK object for the private key that will be used to sign
+    - `payload` - *optional*: Only required if verifying a payload-detached JWS
+
+```javascript
+const jws = new ION.verifyJws({
+  jws: 'eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NK3f...',
+  privateJwk: { ... }
+});
+
+// RESULT: true or false
 ```
 
 #### `ION.resolve(DID_URI, OPTIONS)` *async*
@@ -249,7 +287,7 @@ Submits the ION operation request, per the request object and endpoints set duri
 
 ```javascript
 const did = new ION.DID();
-const requestBody = await did.generateRequest() ;
+const requestBody = await did.generateRequest();
 const request = new ION.AnchorRequest(requestBody);
 let response = await request.submit();
 ```

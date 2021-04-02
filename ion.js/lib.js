@@ -30,7 +30,7 @@ var ION = globalThis.ION = {
         return await _generateKeyPair(secp256k1.Secp256k1KeyPair);
     }
   },
-  async generateJws(params = {}){
+  async signJws(params = {}){
     let method = 'sign';
     let payload = params.payload;
     let header = params.header || {};
@@ -51,7 +51,7 @@ var ION = globalThis.ION = {
       default: throw new Error('Unsupported cryptographic type');
     } 
   },
-  async validateJws(params = {}){
+  async verifyJws(params = {}){
     let payload = params.payload;
     if (payload) payload = payload instanceof Buffer ? payload : Buffer.from(payload);
     switch(params.privateJwk.crv){

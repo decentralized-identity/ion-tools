@@ -89,20 +89,20 @@
         e.preventDefault();
         let payload = jws_payload.value || '';
         let key = (await did.getOperation(0)).update.privateJwk;
-        jws = await ION.generateJws({
+        jws = await ION.signJws({
           privateJwk: key,
           payload: payload
         });
-        jwsDetached = await ION.generateJws({
+        jwsDetached = await ION.signJws({
           detached: true,
           privateJwk: key,
           payload: payload
         });
-        let valid = await ION.validateJws({
+        let valid = await ION.verifyJws({
           privateJwk: key,
           jws: jws
         });
-        let validDetached = await ION.validateJws({
+        let validDetached = await ION.verifyJws({
           privateJwk: key,
           jws: jwsDetached,
           payload: payload
