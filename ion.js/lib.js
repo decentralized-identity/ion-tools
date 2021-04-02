@@ -43,6 +43,11 @@ var ION = globalThis.ION = {
       });
     }
     switch(params.privateJwk.crv){
+      case 'Ed25519':
+        header = Object.assign(header, {
+          alg: 'EdDSA'
+        });
+        return ed25519.EdDSA[method](payload, params.privateJwk, header);
       case 'secp256k1':
         header = Object.assign(header, {
           alg: 'ES256K'
@@ -55,6 +60,10 @@ var ION = globalThis.ION = {
     let payload = params.payload;
     if (payload) payload = payload instanceof Buffer ? payload : Buffer.from(payload);
     switch(params.privateJwk.crv){
+      case 'Ed25519':
+        return params.payload ? 
+          ed25519.EdDSA.verifyDetached(params.jws, payload, params.privateJwk) : 
+          ed25519.EdDSA.verify(params.jws, params.privateJwk);
       case 'secp256k1':
         return params.payload ? 
           secp256k1.ES256K.verifyDetached(params.jws, payload, params.privateJwk) : 

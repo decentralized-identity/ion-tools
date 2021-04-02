@@ -189,7 +189,7 @@ const jws = new ION.signJws({
   privateJwk: { ... }
 });
 
-// RESULT:
+// RESULT
 // eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NKRJVCjK2...
 ```
 
@@ -208,7 +208,9 @@ const jws = new ION.verifyJws({
   privateJwk: { ... }
 });
 
-// RESULT: true or false
+// RESULT
+// success: returns 'hello world' to await/then(response)
+// fail: throws verification error in try/catch(error)
 ```
 
 #### `ION.resolve(DID_URI, OPTIONS)` *async*
