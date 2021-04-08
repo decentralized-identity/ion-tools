@@ -10,6 +10,11 @@ Run the following commands to use the ION tools in this repo:
 
 If you want to generate the browser bundle, continue with these steps:
 
+::: Noob alert:\
+first clone the `ion-tools` project from github to your local machine\
+then `npm install -g browserify; npm install esmify --save-dev`\
+:::
+
 2. `cd` into the `@decentralized-identity/ion-tools` directory
 3. `npm install`
 4. `npm run build`
