@@ -26,6 +26,27 @@ To use the ION.js library in your code, you have two options based on whether yo
 
 Simply include the js library's file from `/dist` in your web app the way you would any other module, using either `<script src="ion.js" type="module">` or `import 'ion.js'`. The module will add the `ION` variable to the global scope.
 
+::: Noob alert:\
+Create and index.html to include `<script src="ion.js" type="module">` within the body tag\
+for example:\
+:::
+```
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A First DID app</title>
+   </head>
+  <body>
+    <div id="app">
+    </div>
+    <script src="ion.js" type="module"></script>
+  </body>
+</html>`
+```
+
+
 **Node.js**
 
 For use in Node.js, you can include the package via `const ION = require('@decentralized-identity/ion-tools')`.
