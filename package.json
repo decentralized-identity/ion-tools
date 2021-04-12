@@ -43,5 +43,7 @@
     "decentralized",
     "identity"
   ],
-  "author": "Decentralized Identity Foundation"
+  "author": "Decentralized Identity Foundation",
+  "engines" : { "node" : ">=0.12" },
+  "engineStrict": true
 }
