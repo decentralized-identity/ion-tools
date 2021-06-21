@@ -173,7 +173,7 @@ RETURN VALUE:
 }
 ```
 
-### `new ION.signJws(PARAMS)`
+### `ION.signJws(PARAMS)`
 
 The `ION.signJws` method generates a signed JWS output of a provided payload, and accepts the following parameters:
 
@@ -193,7 +193,7 @@ const jws = await ION.signJws({
 // eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NKRJVCjK2...
 ```
 
-### `new ION.verifyJws(PARAMS)`
+### `ION.verifyJws(PARAMS)`
 
 The `ION.verifyJws` method verifies a signed JWS output, and accepts the following parameters:
 
