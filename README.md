@@ -199,13 +199,13 @@ The `ION.verifyJws` method verifies a signed JWS output, and accepts the followi
 
 1. `PARAMS` - Object, *required*: An object for passing the following properties used in the resolution request:
     - `jws` - String, *required*: The JWS to be verified.
-    - `privateJwk` - Object, *required*: The JWK object for the private key that will be used to sign
+    - `publicJwk` - Object, *required*: The JWK object for the public key that will be used to verify the JWS.
     - `payload` - *optional*: Only required if verifying a payload-detached JWS
 
 ```javascript
 const jws = new ION.verifyJws({
   jws: 'eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NK3f...',
-  privateJwk: { ... }
+  publicJwk: { ... }
 });
 
 // RESULT

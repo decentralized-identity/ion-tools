@@ -59,15 +59,15 @@ var ION = globalThis.ION = {
   async verifyJws(params = {}){
     let payload = params.payload;
     if (payload) payload = payload instanceof Buffer ? payload : Buffer.from(payload);
-    switch(params.privateJwk.crv){
+    switch(params.publicJwk.crv){
       case 'Ed25519':
         return params.payload ? 
-          ed25519.EdDSA.verifyDetached(params.jws, payload, params.privateJwk) : 
-          ed25519.EdDSA.verify(params.jws, params.privateJwk);
+          ed25519.EdDSA.verifyDetached(params.jws, payload, params.publicJwk) : 
+          ed25519.EdDSA.verify(params.jws, params.publicJwk);
       case 'secp256k1':
         return params.payload ? 
-          secp256k1.ES256K.verifyDetached(params.jws, payload, params.privateJwk) : 
-          secp256k1.ES256K.verify(params.jws, params.privateJwk);
+          secp256k1.ES256K.verifyDetached(params.jws, payload, params.publicJwk) : 
+          secp256k1.ES256K.verify(params.jws, params.publicJwk);
       default: throw new Error('Unsupported cryptographic type');
     } 
   },
