@@ -184,7 +184,7 @@ The `ION.signJws` method generates a signed JWS output of a provided payload, an
     - `detached` - Boolean, *optional*: Pass `true` to output a payload-detached JWS output.
 
 ```javascript
-const jws = new ION.signJws({
+const jws = await ION.signJws({
   payload: 'hello world',
   privateJwk: { ... }
 });
@@ -203,7 +203,7 @@ The `ION.verifyJws` method verifies a signed JWS output, and accepts the followi
     - `payload` - *optional*: Only required if verifying a payload-detached JWS
 
 ```javascript
-const jws = new ION.verifyJws({
+const jws = await ION.verifyJws({
   jws: 'eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NK3f...',
   publicJwk: { ... }
 });

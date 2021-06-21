@@ -1,6 +1,6 @@
 {
   "name": "@decentralized-identity/ion-tools",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
   "repository": {
     "type": "git",
