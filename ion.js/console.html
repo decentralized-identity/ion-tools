@@ -99,11 +99,11 @@
           payload: payload
         });
         let valid = await ION.verifyJws({
-          privateJwk: key,
+          publicJwk: key,
           jws: jws
         });
         let validDetached = await ION.verifyJws({
-          privateJwk: key,
+          publicJwk: key,
           jws: jwsDetached,
           payload: payload
         });
