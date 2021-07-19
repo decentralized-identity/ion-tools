@@ -71,14 +71,6 @@ var ION = globalThis.ION = {
       default: throw new Error('Unsupported cryptographic type');
     } 
   },
-  async generateDidPayload (content = {}) {
-    return {
-      operation: 'create',
-      content: content,
-      recovery: await this.generateKeyPair(),
-      update: await this.generateKeyPair()
-    };
-  },
   async resolve(didUri, options = {}){
     return fetch((options.nodeEndpoint || 'https://beta.discover.did.microsoft.com/1.0/identifiers/') + didUri)
             .then(response => {
@@ -111,7 +103,15 @@ ION.DID = class {
   constructor (options = {}) {
     this._ops = options.ops || [];
     if (!this._ops[0]) {
-      this._ops[0] = ION.generateDidPayload(options.content || {});
+      this._ops[0] = this.generateOperation('create', options.content || {}, false);
+    }
+  }
+
+  async getState(){
+    return {
+      shortForm: await this.getURI('short'),
+      longForm: await this.getURI(),
+      ops: await this.getAllOperations()
     }
   }
 
@@ -133,9 +133,67 @@ ION.DID = class {
     return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
   }
 
-  async generateRequest (payload = 0) {
+  async getSuffix () {
+    return (await this.getURI('short')).split(':').pop();
+  }
+
+  async generateOperation (type, content, commit = true){
+    let ops = await this.getAllOperations();
+    let lastOp = ops[ops.length - 1];
+    if (lastOp && lastOp.operation === 'deactivate') {
+      throw 'Cannot perform further operations on a deactivated DID'
+    }
+    let op = {
+      operation: type,
+      content: content
+    };
+    if (type !== 'create') {
+      op.previous = ops.reduce((last, op) => {
+        return op.operation === type || (op.operation === 'recover' && (type === 'deactivate' || type === 'update')) ? op : last;
+      }, ops[0])
+    }
+    if (type === 'create' || type === 'recover') {
+      op.recovery = await ION.generateKeyPair()
+    }
+    if (type !== 'deactivate') {
+      op.update = await ION.generateKeyPair()
+    }
+    if (commit) this._ops.push(op);
+    return op;
+  }
+
+  async generateRequest (payload = 0, options = {}) {
     const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
     switch (op.operation) {
+      case 'update':
+        return RawIonSdk.IonRequest.createUpdateRequest({
+          didSuffix: await this.getSuffix(),
+          signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.update.privateJwk),
+          nextUpdatePublicKey: op.update.publicJwk,
+          servicesToAdd: op.content?.addServices,
+          idsOfServicesToRemove: op.content?.removeServices,
+          publicKeysToAdd: op.content?.addPublicKeys,
+          idsOfPublicKeysToRemove: op.content?.removePublicKeys
+        });
+      break;
+
+      case 'recover':
+        return RawIonSdk.IonRequest.createRecoverRequest({
+          didSuffix: await this.getSuffix(),
+          signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.recovery.privateJwk),
+          nextRecoveryPublicKey: op.recovery.publicJwk,
+          nextUpdatePublicKey: op.update.publicJwk,
+          document: op.content
+        });
+      break;
+
+      case 'deactivate':
+        return RawIonSdk.IonRequest.createDeactivateRequest({
+          didSuffix: await this.getSuffix(),
+          signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.recovery.privateJwk)
+        });
+      break;
+
       case 'create':
       default:
         return RawIonSdk.IonRequest.createCreateRequest({

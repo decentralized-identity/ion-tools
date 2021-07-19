@@ -68,13 +68,83 @@ let longFormURI = await did.getURI();
 let shortFormURI = await did.getURI('short');
 ```
 
+#### `getSuffix()` *async*
+
+The `getSuffix` method of the `ION.DID` class is an async function that returns the suffix portion of the DID string for the DID URI the class instance represents.
+
+```js
+let did = new ION.DID({ ... });
+// Example DID URI --> "did:ion:EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg"
+let suffix = await did.getSuffix();
+// Example suffix value --> "EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg"
+```
+
+#### `generateOperation(TYPE, CONTENTS, COMMIT)` *async*
+
+The `generateOperation` method of the `ION.DID` class is an async function that generates `update`, `recover`, and `deactivate` operations based on the current lineage of the DID instance. The method returns an operation entry that is appended to the DID operation lineage managed within the class. The function takes the following arguments:
+
+- `type` - String, *required*: the type of operation you want to generate. Supported operations are `update`, `recover`, `deactivate`.
+- `contents` - Object, *optional*: the content of a given operation type that should be reflected in the new DID state (examples below).
+- `commit` - Boolean, *default: true*: generated operations are automatically appended to the operation chain of the DID instance. If you do not want the operation added to the DID's chain of retained operations, pass an explicit `false` to leave the operation uncommitted.
+
+```js
+let did = new ION.DID({ ... });
+let authnKeys2 = await ION.generateKeyPair();
+
+// UPDATE EXAMPLE
+
+let updateOperation = await did.generateOperation('update', {
+  removePublicKeys: ["key-1"],
+  addPublicKeys: [{
+    {
+      id: 'key-2',
+      type: 'EcdsaSecp256k1VerificationKey2019',
+      publicKeyJwk: authnKeys2.publicJwk,
+      purposes: [ 'authentication' ]
+    }
+  }],
+  removeServices: ["some-service-1"],
+  addServices: [{
+    "id": "some-service-2",
+    "type": "SomeServiceType",
+    "serviceEndpoint": "http://www.example.com"
+  }]
+});
+
+// RECOVERY EXAMPLE
+
+let authnKeys3 = await ION.generateKeyPair();
+let recoverOperation = await did.generateOperation('recover', {
+  removePublicKeys: ["key-2"],
+  addPublicKeys: [{
+    {
+      id: 'key-3',
+      type: 'EcdsaSecp256k1VerificationKey2019',
+      publicKeyJwk: authnKeys3.publicJwk,
+      purposes: [ 'authentication' ]
+    }
+  }],
+  removeServices: ["some-service-2"],
+  addServices: [{
+    "id": "some-service-3",
+    "type": "SomeServiceType",
+    "serviceEndpoint": "http://www.example.com"
+  }]
+});
+
+// DEACTIVATE EXAMPLE
+
+let deactivateOperation = await did.generateOperation('deactivate');
+```
+
+
 #### `generateRequest()` *async*
 
 The `generateRequest` method of the `ION.DID` class is an async function that takes either a `number`, in reference to an operation index, or a direct operation payload and returns an operation request object that can be published via an ION node.
 
 ```js
 let did = new ION.DID({ ... });
-let request = await did.generateRequest(0); // 0 = Create
+let request = await did.generateRequest(0); // 0 = Create, same as did._ops[0]
 
 RETURN VALUE:
 {
@@ -118,7 +188,13 @@ RETURN VALUE:
 }
 ```
 
+#### `getState()` *async*
 
+The `getAllOperations` method of the `ION.DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
+
+- `shortForm` - String: Short hash-based version of the DID URI string (only resolvable when anchored).
+- `longForm` - String: Fully self-resolving payload-embedded version of the DID URI string.
+- `ops` - Array: Exported array of all operations that have been included in the state chain of the DID (NOTE: reflection of operations in the network subject to inclusion via broadcast and anchoring).
 
 #### `getAllOperations()` *async*
 

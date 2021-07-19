@@ -14,7 +14,7 @@ async function ionJsCompile (){
   return new Promise(async resolve => {
     await fs.ensureDir(ionJsDist);
     mergeStreams([
-      gulp.src(ionJsFiles)
+      gulp.src(ionJsFiles, { allowEmpty: true })
         .pipe(terser())
         .pipe(concat('ion.min.js'))
         .pipe(gulp.dest(ionJsDist))
