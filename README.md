@@ -10,10 +10,7 @@ Run the following commands to use the ION tools in this repo:
 
 If you want to generate the browser bundle, continue with these steps:
 
-::: Noob alert:\
-first clone the `ion-tools` project from github to your local machine\
-then `npm install -g browserify; npm install esmify --save-dev`\
-:::
+> Note for noobs: first clone the `ion-tools` project from github to your local machine, then `npm install -g browserify; npm install esmify --save-dev`
 
 2. `cd` into the `@decentralized-identity/ion-tools` directory
 3. `npm install`
@@ -26,10 +23,8 @@ To use the ION.js library in your code, you have two options based on whether yo
 
 Simply include the js library's file from `/dist` in your web app the way you would any other module, using either `<script src="ion.js" type="module">` or `import 'ion.js'`. The module will add the `ION` variable to the global scope.
 
-::: Noob alert:\
-Create and index.html to include `<script src="ion.js" type="module">` within the body tag\
-for example:\
-:::
+> Note for noobs: Create and index.html to include `<script src="ion.js" type="module">` within the body tag, for example
+
 ```
 <!DOCTYPE html>
 <html lang="en">
