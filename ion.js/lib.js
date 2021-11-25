@@ -169,6 +169,7 @@ ION.DID = class {
         return RawIonSdk.IonRequest.createUpdateRequest({
           didSuffix: await this.getSuffix(),
           signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.update.privateJwk),
+          updatePublicKey: op.previous.update.publicJwk,
           nextUpdatePublicKey: op.update.publicJwk,
           servicesToAdd: op.content?.addServices,
           idsOfServicesToRemove: op.content?.removeServices,
@@ -181,6 +182,7 @@ ION.DID = class {
         return RawIonSdk.IonRequest.createRecoverRequest({
           didSuffix: await this.getSuffix(),
           signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.recovery.privateJwk),
+          recoveryPublicKey: op.previous.recovery.publicJwk,
           nextRecoveryPublicKey: op.recovery.publicJwk,
           nextUpdatePublicKey: op.update.publicJwk,
           document: op.content
@@ -190,6 +192,7 @@ ION.DID = class {
       case 'deactivate':
         return RawIonSdk.IonRequest.createDeactivateRequest({
           didSuffix: await this.getSuffix(),
+          recoveryPublicKey: op.previous.recovery.publicJwk,
           signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.recovery.privateJwk)
         });
       break;
