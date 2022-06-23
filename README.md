@@ -116,14 +116,14 @@ let authnKeys2 = await ION.generateKeyPair();
 
 let updateOperation = await did.generateOperation('update', {
   removePublicKeys: ["key-1"],
-  addPublicKeys: [{
+  addPublicKeys: [
     {
       id: 'key-2',
       type: 'EcdsaSecp256k1VerificationKey2019',
       publicKeyJwk: authnKeys2.publicJwk,
       purposes: [ 'authentication' ]
     }
-  }],
+  ],
   removeServices: ["some-service-1"],
   addServices: [{
     "id": "some-service-2",
@@ -137,14 +137,14 @@ let updateOperation = await did.generateOperation('update', {
 let authnKeys3 = await ION.generateKeyPair();
 let recoverOperation = await did.generateOperation('recover', {
   removePublicKeys: ["key-2"],
-  addPublicKeys: [{
+  addPublicKeys: [
     {
       id: 'key-3',
       type: 'EcdsaSecp256k1VerificationKey2019',
       publicKeyJwk: authnKeys3.publicJwk,
       purposes: [ 'authentication' ]
     }
-  }],
+  ],
   removeServices: ["some-service-2"],
   addServices: [{
     "id": "some-service-3",
