@@ -211,7 +211,7 @@ RETURN VALUE:
 
 #### `getState()` *async*
 
-The `getAllOperations` method of the `ION.DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
+The `getState` method of the `ION.DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
 
 - `shortForm` - String: Short hash-based version of the DID URI string (only resolvable when anchored).
 - `longForm` - String: Fully self-resolving payload-embedded version of the DID URI string.
