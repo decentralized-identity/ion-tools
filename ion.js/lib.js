@@ -4,6 +4,8 @@ const ed25519 = require('@transmute/did-key-ed25519');
 const secp256k1 = require('@transmute/did-key-secp256k1');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 const ProofOfWorkSDK = require('ion-pow-sdk');
+const keyto = require('@trust/keyto');
+const eccrypto = require('eccrypto');
 
 async function _generateKeyPair(factory){
   const keyPair = await factory.generate({
@@ -77,7 +79,40 @@ var ION = globalThis.ION = {
               if (response.status >= 400) throw new Error('Not Found');
               return response.json();
             });
-  }
+  },
+  async privateKeyHexFromJwk(privateKeyJwk){
+    return keyto
+      .from(
+        {
+          ...privateKeyJwk,
+          crv: 'K-256',
+        },
+        'jwk'
+      )
+      .toString('blk', 'private');
+  },
+  async publicKeyHexFromJwk(publicKeyJwk){
+    return keyto
+      .from(
+        {
+          ...publicKeyJwk,
+          crv: 'K-256',
+        },
+        'jwk'
+      )
+      .toString('blk', 'public');
+  },
+  async encryptData(publicKeyHex, data){
+    const publicKeyBuffer = Buffer.from(publicKeyHex, 'hex');
+    const msg = Buffer.from(data);    
+    const encryptedData = await eccrypto.encrypt(publicKeyBuffer, msg);
+    return encryptedData;
+  },
+  async decryptData(privateKeyHex, encryptedData){
+    const privateKeyBuffer = Buffer.from(privateKeyHex, 'hex');        
+    const decryptedData = await eccrypto.decrypt(privateKeyBuffer, encryptedData);
+    return decryptedData.toString();
+  }  
 };
 
 ION.AnchorRequest = class {
