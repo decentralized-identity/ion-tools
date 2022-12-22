@@ -56,13 +56,15 @@ run `npm run <script_name>` to use any of the scripts listed in the table below:
 
 ION is a high-level library that wraps the lower-level ION SDK to make interfacing with ION components as simple as possible.
 
-### `new ION.DID()`
+### `new DID()`
 
 The `ION.DID` class enables you to generate a fully usable ION DID in a single line of code. The class is invoked as follows:
 
 ```js
-let authnKeys = await ION.generateKeyPair();
-let did = new ION.DID({
+import { DID, generateKeyPair } from '@decentralized-identity/ion-tools';
+
+let authnKeys = await generateKeyPair();
+let did = new DID({
   content: {
     publicKeys: [
       {
@@ -83,24 +85,24 @@ let did = new ION.DID({
 });
 ```
 
-The `ION.DID` class provides the following methods:
+The `DID` class provides the following methods:
 
 #### `getURI()` *async*
 
-The `getURI` method of the `ION.DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
+The `getURI` method of the `DID` class is an async function that returns the URI string for the DID the class instance represents. There are two forms of ION DID URI, the Long-Form URI, which can be used instantly without anchoring an ION DID, and the Short-Form URI, which is only resolvable after a DID has been published to the ION network.
 
 ```js
-let did = new ION.DID({ ... });
+let did = new DID();
 let longFormURI = await did.getURI();
 let shortFormURI = await did.getURI('short');
 ```
 
 #### `getSuffix()` *async*
 
-The `getSuffix` method of the `ION.DID` class is an async function that returns the suffix portion of the DID string for the DID URI the class instance represents.
+The `getSuffix` method of the `DID` class is an async function that returns the suffix portion of the DID string for the DID URI the class instance represents.
 
 ```js
-let did = new ION.DID({ ... });
+let did = new DID();
 // Example DID URI --> "did:ion:EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg"
 let suffix = await did.getSuffix();
 // Example suffix value --> "EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg"
@@ -108,15 +110,15 @@ let suffix = await did.getSuffix();
 
 #### `generateOperation(TYPE, CONTENTS, COMMIT)` *async*
 
-The `generateOperation` method of the `ION.DID` class is an async function that generates `update`, `recover`, and `deactivate` operations based on the current lineage of the DID instance. The method returns an operation entry that is appended to the DID operation lineage managed within the class. The function takes the following arguments:
+The `generateOperation` method of the `DID` class is an async function that generates `update`, `recover`, and `deactivate` operations based on the current lineage of the DID instance. The method returns an operation entry that is appended to the DID operation lineage managed within the class. The function takes the following arguments:
 
 - `type` - String, *required*: the type of operation you want to generate. Supported operations are `update`, `recover`, `deactivate`.
 - `contents` - Object, *optional*: the content of a given operation type that should be reflected in the new DID state (examples below).
 - `commit` - Boolean, *default: true*: generated operations are automatically appended to the operation chain of the DID instance. If you do not want the operation added to the DID's chain of retained operations, pass an explicit `false` to leave the operation uncommitted.
 
 ```js
-let did = new ION.DID({ ... });
-let authnKeys2 = await ION.generateKeyPair();
+let did = new DID();
+let authnKeys2 = await generateKeyPair();
 
 // UPDATE EXAMPLE
 
@@ -140,7 +142,7 @@ let updateOperation = await did.generateOperation('update', {
 
 // RECOVERY EXAMPLE
 
-let authnKeys3 = await ION.generateKeyPair();
+let authnKeys3 = await generateKeyPair();
 let recoverOperation = await did.generateOperation('recover', {
   removePublicKeys: ["key-2"],
   addPublicKeys: [{
@@ -167,10 +169,10 @@ let deactivateOperation = await did.generateOperation('deactivate');
 
 #### `generateRequest()` *async*
 
-The `generateRequest` method of the `ION.DID` class is an async function that takes either a `number`, in reference to an operation index, or a direct operation payload and returns an operation request object that can be published via an ION node.
+The `generateRequest` method of the `DID` class is an async function that takes either a `number`, in reference to an operation index, or a direct operation payload and returns an operation request object that can be published via an ION node.
 
 ```js
-let did = new ION.DID({ ... });
+let did = new DID({ ... });
 let request = await did.generateRequest(0); // 0 = Create, same as did._ops[0]
 
 RETURN VALUE:
@@ -217,7 +219,7 @@ RETURN VALUE:
 
 #### `getState()` *async*
 
-The `getAllOperations` method of the `ION.DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
+The `getAllOperations` method of the `DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
 
 - `shortForm` - String: Short hash-based version of the DID URI string (only resolvable when anchored).
 - `longForm` - String: Fully self-resolving payload-embedded version of the DID URI string.
@@ -225,21 +227,21 @@ The `getAllOperations` method of the `ION.DID` class is an async function that r
 
 #### `getAllOperations()` *async*
 
-The `getAllOperations` method of the `ION.DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
+The `getAllOperations` method of the `DID` class is an async function that returns all operations that have been created for the DID the class instance represents. This is useful in storing the key material and source data of operation. (e.g. for wallets that need to output a static data representation of a DID's state)
 
 ```js
-let did = new ION.DID({ ... });
+let did = new DID({ ... });
 let operations = await did.getAllOperations();
 ```
 
-### `ION.generateKeyPair()` *async*
+### `generateKeyPair()` *async*
 
 The `generateKeyPair` method is an async function that makes generation of keys effortless. The currently supported key types are `secp256k1` and `Ed25519` (more are in the process of being added).
 
 Example:
 
 ```js
-let secp256k1KeyPair = await ION.generateKeyPair('secp256k1');
+let secp256k1KeyPair = await generateKeyPair('secp256k1');
 
 RETURN VALUE:
 {
@@ -258,7 +260,7 @@ RETURN VALUE:
   }
 }
 
-let Ed25519KeyPair = await ION.generateKeyPair('Ed25519');
+let Ed25519KeyPair = await generateKeyPair('Ed25519');
 
 RETURN VALUE:
 {
@@ -276,47 +278,44 @@ RETURN VALUE:
 }
 ```
 
-### `ION.signJws(PARAMS)`
+### `sign(PARAMS)`
 
-The `ION.signJws` method generates a signed JWS output of a provided payload, and accepts the following parameters:
+The `sign` method generates a signed JWS output of a provided payload, and accepts the following parameters:
 
 1. `PARAMS` - Object, *required*: An object for passing the following properties used in the resolution request:
     - `payload` - *required*: The payload to be signed
     - `privateJwk` - Object, *required*: The JWK object for the private key that will be used to sign
     - `header` - Object, *optional*: Additional JWK header values.
-    - `detached` - Boolean, *optional*: Pass `true` to output a payload-detached JWS output.
 
 ```javascript
-const jws = await ION.signJws({
-  payload: 'hello world',
-  privateJwk: { ... }
-});
+import { generateKeyPair, sign } from '@decentralized-identity/ion-tools';
+
+const { privateJwk } = await generateKeyPair();
+
+const jws = await sign({ payload: 'hello world', privateJwk });
 
 // RESULT
 // eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NKRJVCjK2...
 ```
 
-### `ION.verifyJws(PARAMS)`
+### `verify(PARAMS)`
 
-The `ION.verifyJws` method verifies a signed JWS output, and accepts the following parameters:
+The `verify` method verifies a signed JWS output, and accepts the following parameters:
 
 1. `PARAMS` - Object, *required*: An object for passing the following properties used in the resolution request:
     - `jws` - String, *required*: The JWS to be verified.
     - `publicJwk` - Object, *required*: The JWK object for the public key that will be used to verify the JWS.
-    - `payload` - *optional*: Only required if verifying a payload-detached JWS
 
 ```javascript
-const jws = await ION.verifyJws({
-  jws: 'eyJhbGciOiJFUzI1NksifQ.ImhlbGxvIHdvcmxkIg.NK3f...',
-  publicJwk: { ... }
-});
+import { generateKeyPair, sign, verify } from '@decentralized-identity/ion-tools';
 
-// RESULT
-// success: returns 'hello world' to await/then(response)
-// fail: throws verification error in try/catch(error)
+const { privateJwk, publicJwk } = await generateKeyPair();
+
+const jws = await sign({ payload: 'hello world', privateJwk });
+const isLegit = await verify({ jws, publicJwk }); // true/false
 ```
 
-#### `ION.resolve(DID_URI, OPTIONS)` *async*
+#### `resolve(DID_URI, OPTIONS)` *async*
 
 The `resolve` library method resolves a DID URI string and returns the associated DID resolution response object. The method arguments are as follows:
 
@@ -325,59 +324,37 @@ The `resolve` library method resolves a DID URI string and returns the associate
     - `nodeEndpoint` - String, *optional*: URI of the node you desire to contact for resolution. If you are running your own node, use this to pass in your node's resolution endpoint.
 
 ```js
-const response = await ION.resolve('did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y...');
+import { DID, resolve } from '@decentralized-identity/ion-tools';
 
-RETURN VALUE:
+const did = new DID();
+const longFormDID = await did.getURI();
+
+const didDoc = await resolve(longFormDID);
+console.log(didDoc);
+
+/*
+RETURN VALUE: 
 {
-    "@context": "https://w3id.org/did-resolution/v1",
-    "didDocument": {
-        "id": "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA",
-        "@context": [
-            "https://www.w3.org/ns/did/v1",
-            {
-                "@base": "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA"
-            }
-        ],
-        "service": [
-            {
-                "id": "#domain-1",
-                "type": "LinkedDomains",
-                "serviceEndpoint": "https://foo.example.com"
-            }
-        ],
-        "verificationMethod": [
-            {
-                "id": "#key-1",
-                "controller": "",
-                "type": "EcdsaSecp256k1VerificationKey2019",
-                "publicKeyJwk": {
-                    "crv": "secp256k1",
-                    "kty": "EC",
-                    "x": "IQoF6bqUDvBhGWUglcM7uq8BwqsEw3zAKMjPPIs_uW8",
-                    "y": "szWeFJDgOVJ2vWm9u6tZoRugeAQQNQ6YR7ZbgiUfnio"
-                }
-            }
-        ],
-        "authentication": [
-            "#key-1"
-        ]
+  '@context': 'https://w3id.org/did-resolution/v1',
+  didDocument: {
+    id: 'did:ion:EiDERULqAU2ndqI2ha1RRrdJUf6Un0HpVqKhbNMJNUm0Rw:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnt9fV0sInVwZGF0ZUNvbW1pdG1lbnQiOiJFaUMtUHptOGpPcFh6TGJtbDNWdmNBcUVzOUFXRTQxSEF0WWdLXzd1Qm95R013In0sInN1ZmZpeERhdGEiOnsiZGVsdGFIYXNoIjoiRWlCSzFITU1rVmhoSkxpQ3k3OWFUd0tnam9mRDBOOHViQ19McmU2c2ZxZDRHdyIsInJlY292ZXJ5Q29tbWl0bWVudCI6IkVpQkhPU0hxZmFFaERjRDNtcFFLd0Y2aV9WTl9XclNwRmhlQlFyZ3ZCQ3FSVVEifX0',
+    '@context': [ 'https://www.w3.org/ns/did/v1', [Object] ]
+  },
+  didDocumentMetadata: {
+    method: {
+      published: false,
+      recoveryCommitment: 'EiBHOSHqfaEhDcD3mpQKwF6i_VN_WrSpFheBQrgvBCqRUQ',
+      updateCommitment: 'EiC-Pzm8jOpXzLbml3VvcAqEs9AWE41HAtYgK_7uBoyGMw'
     },
-    "didDocumentMetadata": {
-        "method": {
-            "published": false,
-            "recoveryCommitment": "EiBPyOePlnmJ122lDhQJWJ0grIExBwjreUfOe36boqm-jg",
-            "updateCommitment": "EiCfGApgMBs653vH-JAxgqBNqkY_7XjAMInCR5o04bXRFw"
-        },
-        "equivalentId": [
-            "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA"
-        ]
-    }
+    equivalentId: [ 'did:ion:EiDERULqAU2ndqI2ha1RRrdJUf6Un0HpVqKhbNMJNUm0Rw' ]
+  }
 }
+*/
 ```
 
-### `new ION.AnchorRequest(REQUEST_BODY, OPTIONS)`
+### `anchor(REQUEST_BODY, OPTIONS)`
 
-The `ION.AnchorRequest` class is used to submit an ION operation for anchoring with an ION node that implements a challenge and response gated ION node endpoint. The class instantiation arguments are as follows:
+The `anchor` function is used to submit an ION operation for anchoring with an ION node that implements a challenge and response gated ION node endpoint. The class instantiation arguments are as follows:
 
 1. `REQUEST_BODY` - Object, *required*
 2. `OPTIONS` - Object, *optional*: An object for passing the following options used in the resolution request:
@@ -386,15 +363,10 @@ The `ION.AnchorRequest` class is used to submit an ION operation for anchoring w
 
 > NOTE: Endpoint URIs will default to `https://beta.ion.msidentity.com` if not supplied
 
-#### `submit()` *async*
-
-Submits the ION operation request, per the request object and endpoints set during class instantiation.
-
 ```javascript
-const did = new ION.DID();
-const requestBody = await did.generateRequest();
-const request = new ION.AnchorRequest(requestBody);
-let response = await request.submit();
+const did = new DID();
+const anchorRequest = await did.generateRequest();
+const respone = await anchor(anchorRequest);
 ```
 
-> NOTE: The `requestBody` value above is the JSON representation of the ION operation produced by the ION.DID class's `generateRequest()` function.
+> NOTE: The `requestBody` value above is the JSON representation of the ION operation produced by the DID class's `generateRequest()` function.
