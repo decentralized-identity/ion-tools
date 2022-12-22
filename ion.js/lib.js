@@ -1,34 +1,26 @@
 const fetch = require('cross-fetch');
-const randomBytes = require('randombytes');
 const ed25519 = require('@transmute/did-key-ed25519');
 const secp256k1 = require('@transmute/did-key-secp256k1');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 const ProofOfWorkSDK = require('ion-pow-sdk');
 
-async function _generateKeyPair(factory){
-  const keyPair = await factory.generate({
-    secureRandom: () => randomBytes(32)
-  });
-  const { publicKeyJwk, privateKeyJwk } = await keyPair.toJsonWebKeyPair(true);
-  return {
-    publicJwk: publicKeyJwk,
-    privateJwk: privateKeyJwk
-  }
-}
-
 var ION = globalThis.ION = {
   SDK: RawIonSdk,
   async generateKeyPair (type) {
+    let method;
+    let keys = {};
     switch (type) {
       case 'Ed25519':
       case 'EdDSA':
-        return await _generateKeyPair(ed25519.Ed25519KeyPair);
-
+        method = 'generateEd25519OperationKeyPair';
+        break;
       case 'secp256k1':
       case 'ES256K':
       default:
-        return await _generateKeyPair(secp256k1.Secp256k1KeyPair);
+        method = 'generateEs256kOperationKeyPair';
     }
+    [keys.publicJwk, keys.privateJwk] = await RawIonSdk.IonKey[method]();
+    return keys;
   },
   async signJws(params = {}){
     let method = 'sign';
@@ -125,7 +117,7 @@ ION.DID = class {
 
   async getURI (form) {
     const create = await this.getOperation(0);
-    this._longForm = this._longForm || RawIonSdk.IonDid.createLongFormDid({
+    this._longForm = this._longForm || await RawIonSdk.IonDid.createLongFormDid({
       recoveryKey: create.recovery.publicJwk,
       updateKey: create.update.publicJwk,
       document: create.content

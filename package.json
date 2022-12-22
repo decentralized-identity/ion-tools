@@ -16,22 +16,21 @@
     "browserify": "^17.0.0",
     "esmify": "^2.1.1",
     "fs-extra": "9.1.0",
-    "gulp": "4.0.2",
+    "gulp": "^4.0.2",
     "gulp-concat": "2.6.1",
-    "gulp-terser": "2.0.1",
-    "http-server": "0.12.3",
+    "gulp-terser": "^2.1.0",
+    "http-server": "^14.1.1",
     "merge-stream": "2.0.0"
   },
   "dependencies": {
-    "@decentralized-identity/ion-sdk": "0.5.0",
+    "@decentralized-identity/ion-sdk": "0.6.0",
     "@transmute/did-key-bls12381": "^0.2.1-unstable.42",
     "@transmute/did-key-ed25519": "^0.2.1-unstable.42",
     "@transmute/did-key-secp256k1": "^0.2.1-unstable.42",
     "@transmute/did-key-x25519": "^0.2.1-unstable.42",
     "@transmute/did-key.js": "^0.2.1-unstable.42",
-    "cross-fetch": "^3.1.4",
-    "ion-pow-sdk": "^1.0.15",
-    "randombytes": "^2.1.0"
+    "cross-fetch": "^3.1.5",
+    "ion-pow-sdk": "^1.0.10"
   },
   "bugs": {
     "url": "https://github.com/decentralized-identity/ion-tools/issues"
