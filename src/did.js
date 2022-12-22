@@ -97,11 +97,27 @@ export class DID {
     };
   }
 
+  /**
+   * returns the suffix portion of the DID string for the DID URI the class instance represents
+   * @example
+   * <caption>example DID URI: `did:ion:EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg`</caption>
+   *
+   * // returns: EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg
+   * did.getSuffix()
+   * @returns {string} suffix
+   */
   async getSuffix() {
     const uri = await this.getURI('short');
     return uri.split(':').pop();
   }
 
+  /**
+   * returns either the long or short form URI for the DID based on the form provided
+   * @param {'long' | 'short'} form - There are two forms of ION DID URI, the Long-Form URI, which can
+   * be used instantly without anchoring an ION DID, and the Short-Form URI, which is only
+   * resolvable after a DID has been published to the ION network.
+   * @returns {string}
+   */
   async getURI(form) {
     const create = await this.getOperation(0);
     this._longForm = this._longForm || await IonDid.createLongFormDid({
