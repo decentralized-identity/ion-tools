@@ -1,5 +1,5 @@
 import { IonDid, IonRequest, LocalSigner } from '@decentralized-identity/ion-sdk';
-import { generateKeyPair } from './utils';
+import { generateKeyPair } from './utils.js';
 
 export class DID {
   constructor(options = {}) {

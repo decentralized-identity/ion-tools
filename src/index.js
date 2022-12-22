@@ -1,2 +1,2 @@
-export { DID } from './did';
-export { anchor, generateKeyPair, sign, verify } from './utils';
+export { DID } from './did.js';
+export { anchor, generateKeyPair, resolve, sign, verify } from './utils.js';
