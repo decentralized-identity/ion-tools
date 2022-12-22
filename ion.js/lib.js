@@ -1,12 +1,28 @@
 const fetch = require('cross-fetch');
-const ed25519 = require('@transmute/did-key-ed25519');
-const secp256k1 = require('@transmute/did-key-secp256k1');
 const RawIonSdk = require('@decentralized-identity/ion-sdk');
 const ProofOfWorkSDK = require('ion-pow-sdk');
+const ed25519 = require('@noble/ed25519');
+const secp256k1 = require('@noble/secp256k1');
+const { base64url } = require('multiformats/bases/base64');
+const { sha256 } = require('multiformats/hashes/sha2');
+
+/**
+ * @typedef {object} PrivateJWK
+ * @property {'Ed25519'|'secp256k1'} privateJWK.crv
+ * @property {string} privateJWK.d
+ */
+
+/**
+ * @typedef {object} PublicJWK
+ * @property {'Ed25519'|'secp256k1'} publicJWK.crv
+ * @property {string} publicJWK.x
+ * @property {string} [publicJWK.y]
+ */
 
 var ION = globalThis.ION = {
   SDK: RawIonSdk,
-  async generateKeyPair (type) {
+
+  async generateKeyPair(type) {
     let method;
     let keys = {};
     switch (type) {
@@ -20,55 +36,109 @@ var ION = globalThis.ION = {
         method = 'generateEs256kOperationKeyPair';
     }
     [keys.publicJwk, keys.privateJwk] = await RawIonSdk.IonKey[method]();
+
     return keys;
   },
-  async signJws(params = {}){
-    let method = 'sign';
-    let payload = params.payload;
-    let header = params.header || {};
-    if (params.detached) {
-      method = 'signDetached';
-      payload = payload instanceof Buffer ? payload : Buffer.from(payload);
-      header = Object.assign(header, {
-        b64: false,
-        crit: ['b64']
-      });
+
+  /**
+   * signs the payload provided using the key provided
+   * @param {object} params 
+   * @param {any} params.payload - anything JSON stringifiable.
+   * @param {object} [params.header] - any properties you want included in the header. `alg` will be included for you
+   * @param {PrivateJWK} params.privateJwk - the key to sign with
+   * @returns {string} compact JWS
+   */
+  async signJws(params = {}) {
+    const { header = {}, payload, privateJwk } = params;
+    let signer;
+    let signerOpts;
+
+    if (privateJwk.crv === 'Ed25519') {
+      header.alg = 'EdDSA';
+      signer = ed25519;
+    } else if (privateJwk.crv = 'secp256k1') {
+      header.alg = 'ES256K';
+
+      signer = secp256k1;
+      signerOpts = { der: false };
+
+    } else {
+      throw new Error('Unsupported cryptographic type');
     }
-    switch(params.privateJwk.crv){
-      case 'Ed25519':
-        header = Object.assign(header, {
-          alg: 'EdDSA'
-        });
-        return ed25519.EdDSA[method](payload, params.privateJwk, header);
-      case 'secp256k1':
-        header = Object.assign(header, {
-          alg: 'ES256K'
-        });
-        return secp256k1.ES256K[method](payload, params.privateJwk, header);
-      default: throw new Error('Unsupported cryptographic type');
-    } 
+
+    const textEncoder = new TextEncoder();
+
+    const headerStr = JSON.stringify(header);
+    const headerBytes = textEncoder.encode(headerStr);
+    const headerBase64Url = base64url.baseEncode(headerBytes);
+
+    const payloadStr = JSON.stringify(payload);
+    const payloadBytes = textEncoder.encode(payloadStr);
+    const payloadBase64Url = base64url.baseEncode(payloadBytes);
+
+    // this is what's going to get signed
+    const message = `${headerBase64Url}.${payloadBase64Url}`;
+    let messageBytes = textEncoder.encode(message);
+
+    if (privateJwk.crv === 'secp256k1') {
+      messageBytes = await sha256.encode(messageBytes);
+    }
+
+    const privateKeyBytes = base64url.baseDecode(privateJwk.d);
+
+    const signatureBytes = await signer.sign(messageBytes, privateKeyBytes, signerOpts);
+    const signature = base64url.baseEncode(signatureBytes);
+
+    return `${message}.${signature}`;
   },
-  async verifyJws(params = {}){
-    let payload = params.payload;
-    if (payload) payload = payload instanceof Buffer ? payload : Buffer.from(payload);
-    switch(params.publicJwk.crv){
-      case 'Ed25519':
-        return params.payload ? 
-          ed25519.EdDSA.verifyDetached(params.jws, payload, params.publicJwk) : 
-          ed25519.EdDSA.verify(params.jws, params.publicJwk);
-      case 'secp256k1':
-        return params.payload ? 
-          secp256k1.ES256K.verifyDetached(params.jws, payload, params.publicJwk) : 
-          secp256k1.ES256K.verify(params.jws, params.publicJwk);
-      default: throw new Error('Unsupported cryptographic type');
-    } 
+
+  /**
+   *  verifies the provided JWS with the provided public key
+   * @param {object} params
+   * @param {string} params.jws - the compact jws to verify
+   * @param {PublicJWK} params.publicJwk - the public key used to verify the signature
+   * @returns {boolean}
+   */
+  async verifyJws(params = {}) {
+    const { jws, publicJwk } = params;
+    const [headerBase64Url, payloadBase64Url, signatureBase64Url] = jws.split('.');
+
+    const message = `${headerBase64Url}.${payloadBase64Url}`;
+    const messageBytes = new TextEncoder().encode(message);
+
+    const signatureBytes = base64url.baseDecode(signatureBase64Url);
+
+    if (publicJwk.crv === 'secp256k1') {
+      const xBytes = base64url.baseDecode(publicJwk.x);
+      const yBytes = base64url.baseDecode(publicJwk.y);
+
+      const publicKeyBytes = new Uint8Array(xBytes.length + yBytes.length + 1);
+
+      // create an uncompressed public key using the x and y values from the provided JWK.
+      // a leading byte of 0x04 indicates that the public key is uncompressed
+      // (e.g. x and y values are both present)
+      publicKeyBytes.set([0x04], 0);
+      publicKeyBytes.set(xBytes, 1);
+      publicKeyBytes.set(yBytes, xBytes.length + 1);
+
+      const hashedMessage = await sha256.encode(messageBytes);
+
+      return secp256k1.verify(signatureBytes, hashedMessage, publicKeyBytes);
+    } else if (publicJwk.crv === 'Ed25519') {
+      const publicKeyBytes = base64url.baseDecode(publicJwk.x);
+
+      return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
+    } else {
+      throw new Error('Unsupported cryptographic type');
+    }
   },
-  async resolve(didUri, options = {}){
+
+  async resolve(didUri, options = {}) {
     return fetch((options.nodeEndpoint || 'https://beta.discover.did.microsoft.com/1.0/identifiers/') + didUri)
-            .then(response => {
-              if (response.status >= 400) throw new Error('Not Found');
-              return response.json();
-            });
+      .then(response => {
+        if (response.status >= 400) throw new Error('Not Found');
+        return response.json();
+      });
   }
 };
 
@@ -92,14 +162,14 @@ ION.AnchorRequest = class {
 }
 
 ION.DID = class {
-  constructor (options = {}) {
+  constructor(options = {}) {
     this._ops = options.ops || [];
     if (!this._ops[0]) {
       this._ops[0] = this.generateOperation('create', options.content || {}, false);
     }
   }
 
-  async getState(){
+  async getState() {
     return {
       shortForm: await this.getURI('short'),
       longForm: await this.getURI(),
@@ -107,15 +177,15 @@ ION.DID = class {
     }
   }
 
-  getAllOperations () {
+  getAllOperations() {
     return Promise.all(this._ops);
   }
 
-  async getOperation (index) {
+  async getOperation(index) {
     return this._ops[index];
   }
 
-  async getURI (form) {
+  async getURI(form) {
     const create = await this.getOperation(0);
     this._longForm = this._longForm || await RawIonSdk.IonDid.createLongFormDid({
       recoveryKey: create.recovery.publicJwk,
@@ -125,11 +195,11 @@ ION.DID = class {
     return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
   }
 
-  async getSuffix () {
+  async getSuffix() {
     return (await this.getURI('short')).split(':').pop();
   }
 
-  async generateOperation (type, content, commit = true){
+  async generateOperation(type, content, commit = true) {
     let ops = await this.getAllOperations();
     let lastOp = ops[ops.length - 1];
     if (lastOp && lastOp.operation === 'deactivate') {
@@ -154,7 +224,7 @@ ION.DID = class {
     return op;
   }
 
-  async generateRequest (payload = 0, options = {}) {
+  async generateRequest(payload = 0, options = {}) {
     const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
     switch (op.operation) {
       case 'update':
@@ -168,7 +238,7 @@ ION.DID = class {
           publicKeysToAdd: op.content?.addPublicKeys,
           idsOfPublicKeysToRemove: op.content?.removePublicKeys
         });
-      break;
+        break;
 
       case 'recover':
         return RawIonSdk.IonRequest.createRecoverRequest({
@@ -179,7 +249,7 @@ ION.DID = class {
           nextUpdatePublicKey: op.update.publicJwk,
           document: op.content
         });
-      break;
+        break;
 
       case 'deactivate':
         return RawIonSdk.IonRequest.createDeactivateRequest({
@@ -187,7 +257,7 @@ ION.DID = class {
           recoveryPublicKey: op.previous.recovery.publicJwk,
           signer: options.signer || RawIonSdk.LocalSigner.create(op.previous.recovery.privateJwk)
         });
-      break;
+        break;
 
       case 'create':
       default:
