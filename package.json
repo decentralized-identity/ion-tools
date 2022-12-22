@@ -7,20 +7,16 @@
     "url": "git+https://github.com/decentralized-identity/ion-tools.git"
   },
   "license": "Apache-2.0",
-  "main": "ion.js/lib.js",
+  "type": "module",
+  "exports": "./src/index.js",
+  "browser": {
+    "./src/index.js": "./dist/browser-bundle.js"
+  },
   "scripts": {
-    "build": "npm run ionJs",
-    "ionJs": "browserify -p esmify ./ion.js/lib.js -o ./dist/ion.js && gulp ion.js"
+    "bundle": "node ./bundle.js"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "esmify": "^2.1.1",
-    "fs-extra": "9.1.0",
-    "gulp": "^4.0.2",
-    "gulp-concat": "2.6.1",
-    "gulp-terser": "^2.1.0",
-    "http-server": "^14.1.1",
-    "merge-stream": "2.0.0"
+    "esbuild": "0.16.10"
   },
   "dependencies": {
     "multiformats": "9.6.4",
@@ -41,7 +37,7 @@
   ],
   "author": "Decentralized Identity Foundation",
   "engines": {
-    "node": ">=0.12"
+    "node": ">= 16"
   },
   "engineStrict": true
 }
