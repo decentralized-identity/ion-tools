@@ -3,50 +3,56 @@
 This repo includes tools and utilities to make working with the ION network and using ION DIDs easy for developers integrating DIDs into their apps and services. The packages within are geared toward making interactions with ION maximally accessible for developers, with a primary focus on making their functionality dually available in both client Web and server environments.
 
 ## Installation
-
-Run the following commands to use the ION tools in this repo:
-
-1. `npm install`
-
-If you want to generate the browser bundle, continue with these steps:
-
-> Note for noobs: first clone the `ion-tools` project from github to your local machine, then `npm install -g browserify; npm install esmify --save-dev`
-
-2. `cd` into the `@decentralized-identity/ion-tools` directory
-3. `npm install`
-4. `npm run build`
-5. Files are output to `/dist` as `ion.js` and `ion.min.js`
-
-To use the ION.js library in your code, you have two options based on whether you're operating in a browser or Node.js environment:
-
-**Browser**
-
-Simply include the js library's file from `/dist` in your web app the way you would any other module, using either `<script src="ion.js" type="module">` or `import 'ion.js'`. The module will add the `ION` variable to the global scope.
-
-> Note for noobs: Create and index.html to include `<script src="ion.js" type="module">` within the body tag, for example
-
+```bash
+npm install @decentralized-identity/ion-tools
 ```
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>A First DID app</title>
-   </head>
-  <body>
-    <div id="app">
-    </div>
-    <script src="ion.js" type="module"></script>
-  </body>
-</html>`
+
+>💡 Note: Browser bundle is included in package. your bundling tool should automatically pick it up if it adheres to the `browser` property in `package.json`
+
+## Usage
+```javascript
+import { DID, generateKeyPair } from '@decentralized-identity/ion-tools';
+
+const authnKeys = await generateKeyPair();
+const did = new DID({
+  content: {
+    publicKeys: [
+      {
+        id: 'key-1',
+        type: 'EcdsaSecp256k1VerificationKey2019',
+        publicKeyJwk: authnKeys.publicJwk,
+        purposes: [ 'authentication' ]
+      }
+    ],
+    services: [
+      {
+        id: 'domain-1',
+        type: 'LinkedDomains',
+        serviceEndpoint: 'https://foo.example.com'
+      }
+    ]
+  }
+});
 ```
 
 
-**Node.js**
+## Contributing
+```bash
+git clone https://github.com/decentralized-identity/ion-tools
+cd ion-tools
+npm install
+```
 
-For use in Node.js, you can include the package via `const ION = require('@decentralized-identity/ion-tools')`.
+### Available npm scripts
+run `npm run <script_name>` to use any of the scripts listed in the table below:
 
-## ION.js
+| script     | description                                                     |
+| ---------- | --------------------------------------------------------------- |
+| `bundle`   | generates  and saves browser bundle to `dist/browser-bundle.js` |
+| `lint`     | runs linter without auto-fixing                                 |
+| `lint:fix` | runs linter and automatically fixes issues                      |
+
+## API Reference
 
 ION is a high-level library that wraps the lower-level ION SDK to make interfacing with ION components as simple as possible.
 
