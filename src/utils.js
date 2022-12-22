@@ -32,11 +32,11 @@ const keyGenerators = {
   'EdDSA': IonKey.generateEd25519OperationKeyPair,
   'secp256k1': IonKey.generateEs256kOperationKeyPair,
   'ES256K': IonKey.generateEs256kOperationKeyPair
-}
+};
 
 /**
  * generates a keypair of the type provided
- * @param {'Ed25519'| 'EdDSA' | 'secp256k1' | 'ES256K'} type 
+ * @param {'Ed25519'| 'EdDSA' | 'secp256k1' | 'ES256K'} type
  * @returns {KeyPair}
  */
 export async function generateKeyPair(type = 'secp256k1') {
@@ -45,7 +45,7 @@ export async function generateKeyPair(type = 'secp256k1') {
   const keyGeneratorFn = keyGenerators[type];
 
   if (!keyGeneratorFn) {
-    throw new Error('Unsupported key type')
+    throw new Error('Unsupported key type');
   }
 
   [keys.publicJwk, keys.privateJwk] = await keyGeneratorFn();
@@ -55,7 +55,7 @@ export async function generateKeyPair(type = 'secp256k1') {
 
 /**
  * signs the payload provided using the key provided
- * @param {object} params 
+ * @param {object} params
  * @param {any} params.payload - anything JSON stringifiable.
  * @param {object} [params.header] - any properties you want included in the header. `alg` will be included for you
  * @param {PrivateJWK} params.privateJwk - the key to sign with
@@ -148,10 +148,10 @@ export async function verify(params = {}) {
 
 /**
  * resolves the ION DID provided
- * @param {string} didUri 
+ * @param {string} didUri
  * @param {object} options
  * @param {string} [nodeEndpoint] - the resolver node
- * @returns 
+ * @returns
  */
 export async function resolve(didUri, options = {}) {
   const { nodeEndpoint = 'https://beta.discover.did.microsoft.com/1.0/identifiers' } = options;
@@ -159,7 +159,7 @@ export async function resolve(didUri, options = {}) {
   const response = await fetch(`${nodeEndpoint}/${didUri}`);
 
   if (response.status >= 400) {
-    throw new Error(response.statusText)
+    throw new Error(response.statusText);
   }
 
   return response.json();
@@ -170,7 +170,7 @@ export async function anchor(anchorRequest, options = {}) {
     challengeEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
     solutionEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/operations',
     ...options
-  }
+  };
 
   return ProofOfWorkSDK.submitIonRequest(
     mergedOptions.challengeEndpoint,

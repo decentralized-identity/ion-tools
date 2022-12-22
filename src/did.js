@@ -1,5 +1,5 @@
-import { IonDid, IonRequest, LocalSigner } from "@decentralized-identity/ion-sdk";
-import { generateKeyPair } from "./utils";
+import { IonDid, IonRequest, LocalSigner } from '@decentralized-identity/ion-sdk';
+import { generateKeyPair } from './utils';
 
 export class DID {
   constructor(options = {}) {
@@ -13,7 +13,7 @@ export class DID {
     let ops = await this.getAllOperations();
     let lastOp = ops[ops.length - 1];
     if (lastOp && lastOp.operation === 'deactivate') {
-      throw 'Cannot perform further operations on a deactivated DID'
+      throw 'Cannot perform further operations on a deactivated DID';
     }
     let op = {
       operation: type,
@@ -22,7 +22,7 @@ export class DID {
     if (type !== 'create') {
       op.previous = ops.reduce((last, op) => {
         return op.operation === type || (op.operation === 'recover' && (type === 'deactivate' || type === 'update')) ? op : last;
-      }, ops[0])
+      }, ops[0]);
     }
     if (type === 'create' || type === 'recover') {
       op.recovery = await generateKeyPair();
@@ -30,7 +30,10 @@ export class DID {
     if (type !== 'deactivate') {
       op.update = await generateKeyPair();
     }
-    if (commit) this._ops.push(op);
+    if (commit) {
+      this._ops.push(op);
+    }
+
     return op;
   }
 
@@ -91,7 +94,7 @@ export class DID {
       shortForm: await this.getURI('short'),
       longForm: await this.getURI(),
       ops: await this.getAllOperations()
-    }
+    };
   }
 
   async getSuffix() {

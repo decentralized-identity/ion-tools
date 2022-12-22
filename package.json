@@ -13,10 +13,13 @@
     "./src/index.js": "./dist/browser-bundle.js"
   },
   "scripts": {
-    "bundle": "node ./bundle.js"
+    "bundle": "node ./bundle.js",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
-    "esbuild": "0.16.10"
+    "esbuild": "0.16.10",
+    "eslint": "8.30.0"
   },
   "dependencies": {
     "multiformats": "9.6.4",
