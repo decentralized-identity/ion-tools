@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title>ION Tools Console Testing Page</title>
+
+  <style>
+    [wrap-text] {
+      white-space: pre-line;
+      word-break: break-all;
+    }
+
+    #generate_jws_form {
+      display: none;
+    }
+
+    :root[did] #generate_jws_form {
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <button id="generate_did">Generate Test DID</button>
+  <form id="generate_jws_form">
+    <input id="jws_payload" />
+    <button id="generate_jws">Generate JWS</button>
+  </form>
+  <button id="submit_pow" style="display: none;">Test submit DID</button>
+
+  <h3>JWS</h3>
+  <pre id="print_jws"></pre>
+
+  <h3>Short-Form DID URI</h3>
+  <pre id="print_short"></pre>
+
+  <h3>Long-Form DID URI</h3>
+  <pre id="print_long" wrap-text></pre>
+
+  <h3>Create DID Request Object</h3>
+  <pre id="print_request"></pre>
+
+  <script type="module">
+    import { anchor, DID, generateKeyPair, sign, verify } from '../dist/browser-bundle.js'
+
+
+    async function generateDID() {
+      let authnKeys = await generateKeyPair();
+      return new DID({
+        content: {
+          publicKeys: [
+            {
+              id: 'key-1',
+              type: 'EcdsaSecp256k1VerificationKey2019',
+              publicKeyJwk: authnKeys.publicJwk,
+              purposes: ['authentication']
+            }
+          ],
+          services: [
+            {
+              id: 'domain-1',
+              type: 'LinkedDomains',
+              serviceEndpoint: 'https://foo.example.com'
+            }
+          ]
+        }
+      });
+    };
+
+    JSON.pretty = json => JSON.stringify(json, null, 2)
+    let request;
+    let did;
+    let jws;
+
+    generate_did.addEventListener('click', async e => {
+      did = await generateDID();
+      document.documentElement.setAttribute('did', await did.getURI('short'))
+      print_short.textContent = JSON.pretty(await did.getURI('short'))
+      print_long.textContent = JSON.pretty(await did.getURI('long'))
+
+      request = await did.generateRequest(0);
+      print_request.textContent = JSON.pretty(request)
+    });
+
+    generate_jws_form.addEventListener('submit', async e => {
+      e.preventDefault();
+      let payload = jws_payload.value || '';
+      let key = (await did.getOperation(0)).update.privateJwk;
+      jws = await sign({
+        privateJwk: key,
+        payload: payload
+      });
+
+      let valid = await verify({
+        publicJwk: key,
+        jws: jws
+      });
+
+      console.log(valid);
+      console.log(jws);
+
+      print_jws.textContent = jws;
+    })
+
+    submit_pow.addEventListener('click', async () => {
+      submit_pow.textContent = "submitting request... look at console to see progress and result"
+      await anchor(request);
+    })
+  </script>
+</body>
+
+</html>
