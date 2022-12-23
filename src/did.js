@@ -2,27 +2,43 @@ import { IonDid, IonRequest, LocalSigner } from '@decentralized-identity/ion-sdk
 import { generateKeyPair } from './utils.js';
 
 export class DID {
-  constructor(options = {}) {
-    this._ops = options.ops || [];
-    if (!this._ops[0]) {
-      this._ops[0] = this.generateOperation('create', options.content || {}, false);
+  #ops;
+  #opQueue = Promise.resolve();
+  #longForm;
+  #longFormPromise;
+
+  constructor(options = { }) {
+    this.#ops = options.ops || [ ];
+    if (!this.#ops.length) {
+      this.#ops.push(this.generateOperation('create', options.content || { }, false));
     }
   }
 
   async generateOperation(type, content, commit = true) {
-    let ops = await this.getAllOperations();
-    let lastOp = ops[ops.length - 1];
+    return this.#addToOpQueue(() => this.#generateOperation(type, content, commit));
+  }
+
+  async #addToOpQueue(callback = Promise.resolve) {
+    const opQueue = this.#opQueue;
+    this.#opQueue = new Promise((resolve, reject) => {
+      opQueue.finally(() => callback().then(resolve, reject));
+    });
+    return this.#opQueue;
+  }
+
+  async #generateOperation(type, content, commit) {
+    let lastOp = this.#ops[this.#ops.length - 1];
     if (lastOp && lastOp.operation === 'deactivate') {
       throw 'Cannot perform further operations on a deactivated DID';
     }
     let op = {
       operation: type,
-      content: content
+      content
     };
     if (type !== 'create') {
-      op.previous = ops.reduce((last, op) => {
+      op.previous = this.#ops.reduce((last, op) => {
         return op.operation === type || (op.operation === 'recover' && (type === 'deactivate' || type === 'update')) ? op : last;
-      }, ops[0]);
+      }, this.#ops[0]);
     }
     if (type === 'create' || type === 'recover') {
       op.recovery = await generateKeyPair();
@@ -31,14 +47,20 @@ export class DID {
       op.update = await generateKeyPair();
     }
     if (commit) {
-      this._ops.push(op);
+      this.#ops.push(op);
     }
 
     return op;
   }
 
-  async generateRequest(payload = 0, options = {}) {
-    const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
+  async generateRequest(payload = 0, options = { }) {
+    let op;
+    if (typeof payloed === 'number') {
+      await this.#addToOpQueue();
+      op = this.#ops[payload];
+    } else {
+      op = payload;
+    }
 
     switch (op.operation) {
       case 'update':
@@ -52,7 +74,6 @@ export class DID {
           publicKeysToAdd: op.content?.addPublicKeys,
           idsOfPublicKeysToRemove: op.content?.removePublicKeys
         });
-        break;
 
       case 'recover':
         return IonRequest.createRecoverRequest({
@@ -81,20 +102,21 @@ export class DID {
     }
   }
 
-  getAllOperations() {
-    return Promise.all(this._ops);
+  async getAllOperations() {
+    return Promise.all(this.#ops);
   }
 
   async getOperation(index) {
-    return this._ops[index];
+    return this.#ops[index];
   }
 
   async getState() {
-    return {
-      shortForm: await this.getURI('short'),
-      longForm: await this.getURI(),
-      ops: await this.getAllOperations()
-    };
+    const [ shortForm, longForm, ops ] = await Promise.all([
+      this.getURI('short'),
+      this.getURI(),
+      this.getAllOperations()
+    ]);
+    return { shortForm, longForm, ops };
   }
 
   /**
@@ -118,14 +140,24 @@ export class DID {
    * resolvable after a DID has been published to the ION network.
    * @returns {string}
    */
-  async getURI(form) {
-    const create = await this.getOperation(0);
-    this._longForm = this._longForm || await IonDid.createLongFormDid({
-      recoveryKey: create.recovery.publicJwk,
-      updateKey: create.update.publicJwk,
-      document: create.content
-    });
+  async getURI(form = 'long') {
+    if (this.#longFormPromise) {
+      await this.#longFormPromise;
+    }
 
-    return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
+    if (!this.#longForm) {
+      this.#longFormPromise = this.#addToOpQueue(() => {
+        const create = this.#ops[0];
+        return IonDid.createLongFormDid({
+          recoveryKey: create.recovery.publicJwk,
+          updateKey: create.update.publicJwk,
+          document: create.content
+        });
+      });
+      this.#longForm = await this.#longFormPromise;
+      this.#longFormPromise = undefined;
+    }
+
+    return !form || form === 'long' ? this.#longForm : this.#longForm.split(':').slice(0, -1).join(':');
   }
 }

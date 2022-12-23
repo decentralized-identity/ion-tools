@@ -40,17 +40,14 @@ const keyGenerators = {
  * @returns {KeyPair}
  */
 export async function generateKeyPair(type = 'secp256k1') {
-  let keys = {};
-
   const keyGeneratorFn = keyGenerators[type];
 
   if (!keyGeneratorFn) {
     throw new Error('Unsupported key type');
   }
 
-  [keys.publicJwk, keys.privateJwk] = await keyGeneratorFn();
-
-  return keys;
+  const [ publicJwk, privateJwk ] = await keyGeneratorFn();
+  return { publicJwk, privateJwk };
 }
 
 /**
@@ -61,22 +58,25 @@ export async function generateKeyPair(type = 'secp256k1') {
  * @param {PrivateJWK} params.privateJwk - the key to sign with
  * @returns {string} compact JWS
  */
-export async function sign(params = {}) {
-  const { header = {}, payload, privateJwk } = params;
+export async function sign(params = { }) {
+  const { header = { }, payload, privateJwk } = params;
   let signer;
   let signerOpts;
 
-  if (privateJwk.crv === 'Ed25519') {
-    header.alg = 'EdDSA';
-    signer = ed25519;
-  } else if (privateJwk.crv = 'secp256k1') {
-    header.alg = 'ES256K';
+  switch (privateJwk.crv) {
+    case 'Ed25519':
+      header.alg = 'EdDSA';
+      signer = ed25519;
+      break;
 
-    signer = secp256k1;
-    signerOpts = { der: false };
+    case 'secp256k1':
+      header.alg = 'ES256K';
+      signer = secp256k1;
+      signerOpts = { der: false };
+      break;
 
-  } else {
-    throw new Error('Unsupported cryptographic type');
+    default:
+      throw new Error('Unsupported cryptographic type');
   }
 
   const textEncoder = new TextEncoder();
@@ -112,37 +112,42 @@ export async function sign(params = {}) {
  * @param {PublicJWK} params.publicJwk - the public key used to verify the signature
  * @returns {boolean}
  */
-export async function verify(params = {}) {
+export async function verify(params = { }) {
   const { jws, publicJwk } = params;
-  const [headerBase64Url, payloadBase64Url, signatureBase64Url] = jws.split('.');
+  const [ headerBase64Url, payloadBase64Url, signatureBase64Url ] = jws.split('.');
 
   const message = `${headerBase64Url}.${payloadBase64Url}`;
   const messageBytes = new TextEncoder().encode(message);
 
   const signatureBytes = base64url.baseDecode(signatureBase64Url);
 
-  if (publicJwk.crv === 'secp256k1') {
-    const xBytes = base64url.baseDecode(publicJwk.x);
-    const yBytes = base64url.baseDecode(publicJwk.y);
+  switch (publicJwk.crv) {
+    case 'secp256k1': {
+      const xBytes = base64url.baseDecode(publicJwk.x);
+      const yBytes = base64url.baseDecode(publicJwk.y);
 
-    const publicKeyBytes = new Uint8Array(xBytes.length + yBytes.length + 1);
+      const publicKeyBytes = new Uint8Array(xBytes.length + yBytes.length + 1);
 
-    // create an uncompressed public key using the x and y values from the provided JWK.
-    // a leading byte of 0x04 indicates that the public key is uncompressed
-    // (e.g. x and y values are both present)
-    publicKeyBytes.set([0x04], 0);
-    publicKeyBytes.set(xBytes, 1);
-    publicKeyBytes.set(yBytes, xBytes.length + 1);
+      // create an uncompressed public key using the x and y values from the provided JWK.
+      // a leading byte of 0x04 indicates that the public key is uncompressed
+      // (e.g. x and y values are both present)
+      publicKeyBytes.set([0x04], 0);
+      publicKeyBytes.set(xBytes, 1);
+      publicKeyBytes.set(yBytes, xBytes.length + 1);
 
-    const hashedMessage = await sha256.encode(messageBytes);
+      const hashedMessage = await sha256.encode(messageBytes);
 
-    return secp256k1.verify(signatureBytes, hashedMessage, publicKeyBytes);
-  } else if (publicJwk.crv === 'Ed25519') {
-    const publicKeyBytes = base64url.baseDecode(publicJwk.x);
+      return secp256k1.verify(signatureBytes, hashedMessage, publicKeyBytes);
+    }
 
-    return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
-  } else {
-    throw new Error('Unsupported cryptographic type');
+    case 'Ed25519': {
+      const publicKeyBytes = base64url.baseDecode(publicJwk.x);
+
+      return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
+    }
+
+    default:
+      throw new Error('Unsupported cryptographic type');
   }
 }
 
@@ -153,7 +158,7 @@ export async function verify(params = {}) {
  * @param {string} [nodeEndpoint] - the resolver node
  * @returns
  */
-export async function resolve(didUri, options = {}) {
+export async function resolve(didUri, options = { }) {
   const { nodeEndpoint = 'https://beta.discover.did.microsoft.com/1.0/identifiers' } = options;
 
   const response = await fetch(`${nodeEndpoint}/${didUri}`);
@@ -165,16 +170,11 @@ export async function resolve(didUri, options = {}) {
   return response.json();
 }
 
-export async function anchor(anchorRequest, options = {}) {
-  const mergedOptions = {
-    challengeEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
-    solutionEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/operations',
-    ...options
-  };
+export async function anchor(anchorRequest, options = { }) {
+  const {
+    challengeEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
+    solutionEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/operations'
+  } = options;
 
-  return ProofOfWorkSDK.submitIonRequest(
-    mergedOptions.challengeEndpoint,
-    mergedOptions.solutionEndpoint,
-    JSON.stringify(anchorRequest)
-  );
+  return ProofOfWorkSDK.submitIonRequest(challengeEndpoint, solutionEndpoint, JSON.stringify(anchorRequest));
 };
