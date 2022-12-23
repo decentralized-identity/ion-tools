@@ -93,11 +93,12 @@ export class DID {
   }
 
   async getState() {
-    return {
-      shortForm: await this.getURI('short'),
-      longForm: await this.getURI(),
-      ops: await this.getAllOperations()
-    };
+    const [ shortForm, longForm, ops ] = await Promise.all([
+      this.getURI('short'),
+      this.getURI(),
+      this.getAllOperations()
+    ]);
+    return { shortForm, longForm, ops };
   }
 
   /**
