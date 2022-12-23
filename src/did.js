@@ -131,7 +131,7 @@ export class DID {
    * resolvable after a DID has been published to the ION network.
    * @returns {string}
    */
-  async getURI(form) {
+  async getURI(form = 'long') {
     if (this.#longFormPromise) {
       await this.#longFormPromise;
     }
