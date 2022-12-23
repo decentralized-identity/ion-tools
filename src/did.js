@@ -20,7 +20,7 @@ export class DID {
     }
     let op = {
       operation: type,
-      content: content
+      content
     };
     if (type !== 'create') {
       op.previous = ops.reduce((last, op) => {
