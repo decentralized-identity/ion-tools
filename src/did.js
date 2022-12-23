@@ -2,10 +2,13 @@ import { IonDid, IonRequest, LocalSigner } from '@decentralized-identity/ion-sdk
 import { generateKeyPair } from './utils.js';
 
 export class DID {
+  #ops;
+  #longForm;
+
   constructor(options = {}) {
-    this._ops = options.ops || [];
-    if (!this._ops[0]) {
-      this._ops[0] = this.generateOperation('create', options.content || {}, false);
+    this.#ops = options.ops || [];
+    if (!this.#ops[0]) {
+      this.#ops[0] = this.generateOperation('create', options.content || {}, false);
     }
   }
 
@@ -31,7 +34,7 @@ export class DID {
       op.update = await generateKeyPair();
     }
     if (commit) {
-      this._ops.push(op);
+      this.#ops.push(op);
     }
 
     return op;
@@ -82,11 +85,11 @@ export class DID {
   }
 
   getAllOperations() {
-    return Promise.all(this._ops);
+    return Promise.all(this.#ops);
   }
 
   async getOperation(index) {
-    return this._ops[index];
+    return this.#ops[index];
   }
 
   async getState() {
@@ -120,12 +123,12 @@ export class DID {
    */
   async getURI(form) {
     const create = await this.getOperation(0);
-    this._longForm = this._longForm || await IonDid.createLongFormDid({
+    this.#longForm = this.#longForm || await IonDid.createLongFormDid({
       recoveryKey: create.recovery.publicJwk,
       updateKey: create.update.publicJwk,
       document: create.content
     });
 
-    return !form || form === 'long' ? this._longForm : this._longForm.split(':').slice(0, -1).join(':');
+    return !form || form === 'long' ? this.#longForm : this.#longForm.split(':').slice(0, -1).join(':');
   }
 }

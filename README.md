@@ -173,7 +173,7 @@ The `generateRequest` method of the `DID` class is an async function that takes 
 
 ```js
 let did = new DID({ ... });
-let request = await did.generateRequest(0); // 0 = Create, same as did._ops[0]
+let request = await did.generateRequest(0); // 0 = Create, same as did.#ops[0]
 
 RETURN VALUE:
 {
