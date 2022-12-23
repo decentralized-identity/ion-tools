@@ -3,17 +3,26 @@ import { generateKeyPair } from './utils.js';
 
 export class DID {
   #ops;
+  #opQueue = Promise.resolve();
   #longForm;
   #longFormPromise;
 
   constructor(options = { }) {
     this.#ops = options.ops || [ ];
-    if (!this.#ops[0]) {
-      this.#ops[0] = this.generateOperation('create', options.content || { }, false);
+    if (!this.#ops.length) {
+      this.#ops.push(this.generateOperation('create', options.content || { }, false));
     }
   }
 
   async generateOperation(type, content, commit = true) {
+    const opQueue = this.#opQueue;
+    this.#opQueue = new Promise((resolve, reject) => {
+      opQueue.finally(() => this.#generateOperation(type, content, commit).then(resolve, reject));
+    });
+    return this.#opQueue;
+  }
+
+  async #generateOperation(type, content, commit) {
     let ops = await this.getAllOperations();
     let lastOp = ops[ops.length - 1];
     if (lastOp && lastOp.operation === 'deactivate') {
@@ -85,7 +94,7 @@ export class DID {
     }
   }
 
-  getAllOperations() {
+  async getAllOperations() {
     return Promise.all(this.#ops);
   }
 
