@@ -4,6 +4,7 @@ import { generateKeyPair } from './utils.js';
 export class DID {
   #ops;
   #longForm;
+  #longFormPromise;
 
   constructor(options = { }) {
     this.#ops = options.ops || [ ];
@@ -123,12 +124,21 @@ export class DID {
    * @returns {string}
    */
   async getURI(form) {
-    const create = await this.getOperation(0);
-    this.#longForm = this.#longForm || await IonDid.createLongFormDid({
-      recoveryKey: create.recovery.publicJwk,
-      updateKey: create.update.publicJwk,
-      document: create.content
-    });
+    if (this.#longFormPromise) {
+      await this.#longFormPromise;
+    }
+
+    if (!this.#longForm) {
+      this.#longFormPromise = this.getOperation(0).then((create) => {
+        return IonDid.createLongFormDid({
+          recoveryKey: create.recovery.publicJwk,
+          updateKey: create.update.publicJwk,
+          document: create.content
+        });
+      });
+      this.#longForm = await this.#longFormPromise;
+      this.#longFormPromise = undefined;
+    }
 
     return !form || form === 'long' ? this.#longForm : this.#longForm.split(':').slice(0, -1).join(':');
   }
