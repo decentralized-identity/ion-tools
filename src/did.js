@@ -65,7 +65,6 @@ export class DID {
           publicKeysToAdd: op.content?.addPublicKeys,
           idsOfPublicKeysToRemove: op.content?.removePublicKeys
         });
-        break;
 
       case 'recover':
         return IonRequest.createRecoverRequest({

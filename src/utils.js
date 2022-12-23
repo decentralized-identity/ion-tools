@@ -66,17 +66,20 @@ export async function sign(params = { }) {
   let signer;
   let signerOpts;
 
-  if (privateJwk.crv === 'Ed25519') {
-    header.alg = 'EdDSA';
-    signer = ed25519;
-  } else if (privateJwk.crv = 'secp256k1') {
-    header.alg = 'ES256K';
+  switch (privateJwk.crv) {
+    case 'Ed25519':
+      header.alg = 'EdDSA';
+      signer = ed25519;
+      break;
 
-    signer = secp256k1;
-    signerOpts = { der: false };
+    case 'secp256k1':
+      header.alg = 'ES256K';
+      signer = secp256k1;
+      signerOpts = { der: false };
+      break;
 
-  } else {
-    throw new Error('Unsupported cryptographic type');
+    default:
+      throw new Error('Unsupported cryptographic type');
   }
 
   const textEncoder = new TextEncoder();
@@ -121,28 +124,33 @@ export async function verify(params = { }) {
 
   const signatureBytes = base64url.baseDecode(signatureBase64Url);
 
-  if (publicJwk.crv === 'secp256k1') {
-    const xBytes = base64url.baseDecode(publicJwk.x);
-    const yBytes = base64url.baseDecode(publicJwk.y);
+  switch (publicJwk.crv) {
+    case 'secp256k1': {
+      const xBytes = base64url.baseDecode(publicJwk.x);
+      const yBytes = base64url.baseDecode(publicJwk.y);
 
-    const publicKeyBytes = new Uint8Array(xBytes.length + yBytes.length + 1);
+      const publicKeyBytes = new Uint8Array(xBytes.length + yBytes.length + 1);
 
-    // create an uncompressed public key using the x and y values from the provided JWK.
-    // a leading byte of 0x04 indicates that the public key is uncompressed
-    // (e.g. x and y values are both present)
-    publicKeyBytes.set([0x04], 0);
-    publicKeyBytes.set(xBytes, 1);
-    publicKeyBytes.set(yBytes, xBytes.length + 1);
+      // create an uncompressed public key using the x and y values from the provided JWK.
+      // a leading byte of 0x04 indicates that the public key is uncompressed
+      // (e.g. x and y values are both present)
+      publicKeyBytes.set([0x04], 0);
+      publicKeyBytes.set(xBytes, 1);
+      publicKeyBytes.set(yBytes, xBytes.length + 1);
 
-    const hashedMessage = await sha256.encode(messageBytes);
+      const hashedMessage = await sha256.encode(messageBytes);
 
-    return secp256k1.verify(signatureBytes, hashedMessage, publicKeyBytes);
-  } else if (publicJwk.crv === 'Ed25519') {
-    const publicKeyBytes = base64url.baseDecode(publicJwk.x);
+      return secp256k1.verify(signatureBytes, hashedMessage, publicKeyBytes);
+    }
 
-    return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
-  } else {
-    throw new Error('Unsupported cryptographic type');
+    case 'Ed25519': {
+      const publicKeyBytes = base64url.baseDecode(publicJwk.x);
+
+      return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
+    }
+
+    default:
+      throw new Error('Unsupported cryptographic type');
   }
 }
 
