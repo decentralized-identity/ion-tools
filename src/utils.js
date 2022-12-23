@@ -40,7 +40,7 @@ const keyGenerators = {
  * @returns {KeyPair}
  */
 export async function generateKeyPair(type = 'secp256k1') {
-  let keys = {};
+  let keys = { };
 
   const keyGeneratorFn = keyGenerators[type];
 
@@ -48,7 +48,7 @@ export async function generateKeyPair(type = 'secp256k1') {
     throw new Error('Unsupported key type');
   }
 
-  [keys.publicJwk, keys.privateJwk] = await keyGeneratorFn();
+  [ keys.publicJwk, keys.privateJwk ] = await keyGeneratorFn();
 
   return keys;
 }
@@ -61,8 +61,8 @@ export async function generateKeyPair(type = 'secp256k1') {
  * @param {PrivateJWK} params.privateJwk - the key to sign with
  * @returns {string} compact JWS
  */
-export async function sign(params = {}) {
-  const { header = {}, payload, privateJwk } = params;
+export async function sign(params = { }) {
+  const { header = { }, payload, privateJwk } = params;
   let signer;
   let signerOpts;
 
@@ -112,9 +112,9 @@ export async function sign(params = {}) {
  * @param {PublicJWK} params.publicJwk - the public key used to verify the signature
  * @returns {boolean}
  */
-export async function verify(params = {}) {
+export async function verify(params = { }) {
   const { jws, publicJwk } = params;
-  const [headerBase64Url, payloadBase64Url, signatureBase64Url] = jws.split('.');
+  const [ headerBase64Url, payloadBase64Url, signatureBase64Url ] = jws.split('.');
 
   const message = `${headerBase64Url}.${payloadBase64Url}`;
   const messageBytes = new TextEncoder().encode(message);
@@ -153,7 +153,7 @@ export async function verify(params = {}) {
  * @param {string} [nodeEndpoint] - the resolver node
  * @returns
  */
-export async function resolve(didUri, options = {}) {
+export async function resolve(didUri, options = { }) {
   const { nodeEndpoint = 'https://beta.discover.did.microsoft.com/1.0/identifiers' } = options;
 
   const response = await fetch(`${nodeEndpoint}/${didUri}`);
@@ -165,7 +165,7 @@ export async function resolve(didUri, options = {}) {
   return response.json();
 }
 
-export async function anchor(anchorRequest, options = {}) {
+export async function anchor(anchorRequest, options = { }) {
   const mergedOptions = {
     challengeEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
     solutionEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/operations',

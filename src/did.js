@@ -5,10 +5,10 @@ export class DID {
   #ops;
   #longForm;
 
-  constructor(options = {}) {
-    this.#ops = options.ops || [];
+  constructor(options = { }) {
+    this.#ops = options.ops || [ ];
     if (!this.#ops[0]) {
-      this.#ops[0] = this.generateOperation('create', options.content || {}, false);
+      this.#ops[0] = this.generateOperation('create', options.content || { }, false);
     }
   }
 
@@ -40,7 +40,7 @@ export class DID {
     return op;
   }
 
-  async generateRequest(payload = 0, options = {}) {
+  async generateRequest(payload = 0, options = { }) {
     const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
 
     switch (op.operation) {
