@@ -40,17 +40,14 @@ const keyGenerators = {
  * @returns {KeyPair}
  */
 export async function generateKeyPair(type = 'secp256k1') {
-  let keys = { };
-
   const keyGeneratorFn = keyGenerators[type];
 
   if (!keyGeneratorFn) {
     throw new Error('Unsupported key type');
   }
 
-  [ keys.publicJwk, keys.privateJwk ] = await keyGeneratorFn();
-
-  return keys;
+  const [ publicJwk, privateJwk ] = await keyGeneratorFn();
+  return { publicJwk, privateJwk };
 }
 
 /**
@@ -174,15 +171,10 @@ export async function resolve(didUri, options = { }) {
 }
 
 export async function anchor(anchorRequest, options = { }) {
-  const mergedOptions = {
-    challengeEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
-    solutionEndpoint: 'https://beta.ion.msidentity.com/api/v1.0/operations',
-    ...options
-  };
+  const {
+    challengeEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
+    solutionEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/operations'
+  } = options;
 
-  return ProofOfWorkSDK.submitIonRequest(
-    mergedOptions.challengeEndpoint,
-    mergedOptions.solutionEndpoint,
-    JSON.stringify(anchorRequest)
-  );
+  return ProofOfWorkSDK.submitIonRequest(challengeEndpoint, solutionEndpoint, JSON.stringify(anchorRequest));
 };
