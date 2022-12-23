@@ -15,16 +15,19 @@ export class DID {
   }
 
   async generateOperation(type, content, commit = true) {
+    return this.#addToOpQueue(() => this.#generateOperation(type, content, commit));
+  }
+
+  async #addToOpQueue(callback = Promise.resolve) {
     const opQueue = this.#opQueue;
     this.#opQueue = new Promise((resolve, reject) => {
-      opQueue.finally(() => this.#generateOperation(type, content, commit).then(resolve, reject));
+      opQueue.finally(() => callback().then(resolve, reject));
     });
     return this.#opQueue;
   }
 
   async #generateOperation(type, content, commit) {
-    let ops = await this.getAllOperations();
-    let lastOp = ops[ops.length - 1];
+    let lastOp = this.#ops[this.#ops.length - 1];
     if (lastOp && lastOp.operation === 'deactivate') {
       throw 'Cannot perform further operations on a deactivated DID';
     }
@@ -33,9 +36,9 @@ export class DID {
       content
     };
     if (type !== 'create') {
-      op.previous = ops.reduce((last, op) => {
+      op.previous = this.#ops.reduce((last, op) => {
         return op.operation === type || (op.operation === 'recover' && (type === 'deactivate' || type === 'update')) ? op : last;
-      }, ops[0]);
+      }, this.#ops[0]);
     }
     if (type === 'create' || type === 'recover') {
       op.recovery = await generateKeyPair();
@@ -51,7 +54,13 @@ export class DID {
   }
 
   async generateRequest(payload = 0, options = { }) {
-    const op = typeof payload === 'number' ? await this.getOperation(payload) : payload;
+    let op;
+    if (typeof payloed === 'number') {
+      await this.#addToOpQueue();
+      op = this.#ops[payload];
+    } else {
+      op = payload;
+    }
 
     switch (op.operation) {
       case 'update':
@@ -137,7 +146,8 @@ export class DID {
     }
 
     if (!this.#longForm) {
-      this.#longFormPromise = this.getOperation(0).then((create) => {
+      this.#longFormPromise = this.#addToOpQueue(() => {
+        const create = this.#ops[0];
         return IonDid.createLongFormDid({
           recoveryKey: create.recovery.publicJwk,
           updateKey: create.update.publicJwk,
