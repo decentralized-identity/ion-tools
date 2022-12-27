@@ -139,7 +139,7 @@ export async function verify(params = { }) {
       // create an uncompressed public key using the x and y values from the provided JWK.
       // a leading byte of 0x04 indicates that the public key is uncompressed
       // (e.g. x and y values are both present)
-      publicKeyBytes.set([0x04], 0);
+      publicKeyBytes.set([ 0x04 ], 0);
       publicKeyBytes.set(xBytes, 1);
       publicKeyBytes.set(yBytes, xBytes.length + 1);
 
