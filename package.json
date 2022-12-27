@@ -14,7 +14,7 @@
     "./src/index.js": "./dist/browser-bundle.js"
   },
   "scripts": {
-    "bundle": "node ./bundle.js",
+    "bundle": "rm -rf ./dist && node ./bundle.js",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix"
   },
