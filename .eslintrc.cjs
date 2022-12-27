@@ -12,14 +12,14 @@ module.exports = {
       'error',
       'unix'
     ],
-    'curly': ['error', 'all'],
+    'curly': [ 'error', 'all' ],
     'quotes': [
       'error',
       'single',
       { 'allowTemplateLiterals': true }
     ],
-    'semi': ['error', 'always'],
-    'no-trailing-spaces': ['error'],
+    'semi': [ 'error', 'always' ],
+    'no-trailing-spaces': [ 'error' ],
     'no-unused-vars': [
       'error',
       {
@@ -29,6 +29,8 @@ module.exports = {
         'argsIgnorePattern': '^_',
         'varsIgnorePattern': '^_'
       }
-    ]
+    ],
+    'array-bracket-spacing': [ 'error', 'always' ],
+    'object-curly-spacing': [ 'error', 'always' ]
   }
 };

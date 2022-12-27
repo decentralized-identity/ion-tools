@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch';
+import crossFetch from 'cross-fetch';
 import ProofOfWorkSDK from 'ion-pow-sdk';
 
 import * as ed25519 from '@noble/ed25519';
@@ -7,6 +7,14 @@ import * as secp256k1 from '@noble/secp256k1';
 import { base64url } from 'multiformats/bases/base64';
 import { IonKey } from '@decentralized-identity/ion-sdk';
 import { sha256 } from 'multiformats/hashes/sha2';
+
+// supports fetch in: node, browsers, and browser extensions.
+// uses native fetch if available in environment or falls back to a ponyfill.
+// 'cross-fetch' is a ponyfill that uses `XMLHTTPRequest` under the hood.
+// `XMLHTTPRequest` cannot be used in browser extension background service workers.
+// browser extensions get even more strict with `fetch` in that it cannot be referenced
+// indirectly.
+const fetch = globalThis.fetch ?? crossFetch;
 
 /**
  * @typedef {object} PrivateJWK
@@ -131,7 +139,7 @@ export async function verify(params = { }) {
       // create an uncompressed public key using the x and y values from the provided JWK.
       // a leading byte of 0x04 indicates that the public key is uncompressed
       // (e.g. x and y values are both present)
-      publicKeyBytes.set([0x04], 0);
+      publicKeyBytes.set([ 0x04 ], 0);
       publicKeyBytes.set(xBytes, 1);
       publicKeyBytes.set(yBytes, xBytes.length + 1);
 

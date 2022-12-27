@@ -1,12 +1,12 @@
 import esbuild from 'esbuild';
 
 esbuild.build({
-  entryPoints: ['./src/index.js'],
+  entryPoints: [ './src/index.js' ],
   bundle: true,
   format: 'esm',
   sourcemap: true,
   platform: 'browser',
-  target: ['chrome101'],
+  target: [ 'chrome101' ],
   define: {
     'global': 'globalThis'
   },
