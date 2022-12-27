@@ -15,6 +15,7 @@
   },
   "scripts": {
     "bundle": "rm -rf ./dist && node ./bundle.js",
+    "publish": "npm run bundle && npm publish",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix"
   },
