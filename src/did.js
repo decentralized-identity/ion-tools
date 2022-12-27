@@ -18,7 +18,7 @@ export class DID {
     return this.#addToOpQueue(() => this.#generateOperation(type, content, commit));
   }
 
-  async #addToOpQueue(callback = Promise.resolve) {
+  async #addToOpQueue(callback = () => Promise.resolve()) {
     const opQueue = this.#opQueue;
     this.#opQueue = new Promise((resolve, reject) => {
       opQueue.finally(() => callback().then(resolve, reject));
@@ -55,9 +55,9 @@ export class DID {
 
   async generateRequest(payload = 0, options = { }) {
     let op;
-    if (typeof payloed === 'number') {
+    if (typeof payload === 'number') {
       await this.#addToOpQueue();
-      op = this.#ops[payload];
+      op = await this.getOperation(payload);
     } else {
       op = payload;
     }
@@ -138,7 +138,7 @@ export class DID {
    * @param {'long' | 'short'} form - There are two forms of ION DID URI, the Long-Form URI, which can
    * be used instantly without anchoring an ION DID, and the Short-Form URI, which is only
    * resolvable after a DID has been published to the ION network.
-   * @returns {string}
+   * @returns {Promise<string>}
    */
   async getURI(form = 'long') {
     if (this.#longFormPromise) {
@@ -146,8 +146,8 @@ export class DID {
     }
 
     if (!this.#longForm) {
-      this.#longFormPromise = this.#addToOpQueue(() => {
-        const create = this.#ops[0];
+      this.#longFormPromise = this.#addToOpQueue(async () => {
+        const create = await this.getOperation(0);
         return IonDid.createLongFormDid({
           recoveryKey: create.recovery.publicJwk,
           updateKey: create.update.publicJwk,
