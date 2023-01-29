@@ -10,11 +10,16 @@ npm install @decentralized-identity/ion-tools
 >💡 Note: Browser bundle is included in package. your bundling tool should automatically pick it up if it adheres to the `browser` property in `package.json`
 
 ## Usage
-```javascript
-import { DID, generateKeyPair } from '@decentralized-identity/ion-tools';
 
-const authnKeys = await generateKeyPair();
-const did = new DID({
+### Create ION DID
+
+```javascript
+import { anchor, DID, generateKeyPair } from '@decentralized-identity/ion-tools';
+import { writeFile } from 'fs/promises';
+
+// Generate keys and ION DID
+let authnKeys = await generateKeyPair();
+let did = new DID({
   content: {
     publicKeys: [
       {
@@ -33,8 +38,66 @@ const did = new DID({
     ]
   }
 });
+
+// Generate and publish create request to an ION node
+let createRequest = await did.generateRequest(0);
+let anchorResponse = await anchor(createRequest);
+
+// Store the key material and source data of all operations that have been created for the DID
+let ionOps = await did.getAllOperations();
+await writeFile('./ion-did-ops-v1.json', JSON.stringify({ ops: ionOps }));
 ```
 
+### Update ION DID
+
+```javascript
+import { anchor, DID, generateKeyPair } from '@decentralized-identity/ion-tools';
+import { readFile, writeFile } from 'fs/promises';
+
+// Generate new keys
+let authnKeys2 = await generateKeyPair();
+
+// Instantiate DID using previously saved state
+let ionOps;
+await readFile('./ion-did-ops-v1.json', { encoding: 'utf8' })
+  .then((data) => {
+    ionOps = JSON.parse(data);
+  })
+  .catch((error) => {
+    console.log(error);
+    process.exit(1);
+  });
+let did = new DID(ionOps);
+
+// Generate update operation to remove key-1, add key-2, remove some-service-1, and add some-service-2.
+let updateOperation = await did.generateOperation('update', {
+  removePublicKeys: ['key-1'],
+  addPublicKeys: [
+    {
+      id: 'key-2',
+      type: 'EcdsaSecp256k1VerificationKey2019',
+      publicKeyJwk: authnKeys2.publicJwk,
+      purposes: [ 'authentication' ]
+    }
+  ],
+  removeServices: ['some-service-1'],
+  addServices: [
+    {
+      'id': 'some-service-2',
+      'type': 'SomeServiceType',
+      'serviceEndpoint': 'http://www.example.com'
+    }
+  ]
+});
+
+// Generate and publish update request to an ION node
+let updateRequest = await did.generateRequest(updateOperation);
+let anchorRespons = await anchor(updateRequest);
+
+// Store the revised key material and source data for the DID
+ionOps = await did.getAllOperations();
+await writeFile('./ion-did-ops-v2.json', JSON.stringify({ ops: ionOps }), { encoding: 'utf8' });
+```
 
 ## Contributing
 ```bash
@@ -132,12 +195,12 @@ let updateOperation = await did.generateOperation('update', {
       purposes: [ 'authentication' ]
     }
   ],
-  removeServices: ["some-service-1"],
+  removeServices: ['some-service-1'],
   addServices: [
     {
-      "id": "some-service-2",
-      "type": "SomeServiceType",
-      "serviceEndpoint": "http://www.example.com"
+      'id': 'some-service-2',
+      'type': 'SomeServiceType',
+      'serviceEndpoint': 'http://www.example.com'
     }
   ]
 });
@@ -146,7 +209,7 @@ let updateOperation = await did.generateOperation('update', {
 
 let authnKeys3 = await generateKeyPair();
 let recoverOperation = await did.generateOperation('recover', {
-  removePublicKeys: ["key-2"],
+  removePublicKeys: ['key-2'],
   addPublicKeys: [
     {
       id: 'key-3',
@@ -155,12 +218,12 @@ let recoverOperation = await did.generateOperation('recover', {
       purposes: [ 'authentication' ]
     }
   ],
-  removeServices: ["some-service-2"],
+  removeServices: ['some-service-2'],
   addServices: [
     {
-      "id": "some-service-3",
-      "type": "SomeServiceType",
-      "serviceEndpoint": "http://www.example.com"
+      'id': 'some-service-3',
+      'type': 'SomeServiceType',
+      'serviceEndpoint': 'http://www.example.com'
     }
   ]
 });
@@ -223,7 +286,7 @@ RETURN VALUE:
 
 #### `getState()` *async*
 
-The `getAllOperations` method of the `DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
+The `getState` method of the `DID` class is an async function that returns the exported state of the DID instance, a JSON object composed of the following values:
 
 - `shortForm` - String: Short hash-based version of the DID URI string (only resolvable when anchored).
 - `longForm` - String: Fully self-resolving payload-embedded version of the DID URI string.
