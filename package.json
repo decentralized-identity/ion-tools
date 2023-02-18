@@ -17,7 +17,7 @@
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:browser",
-    "build:cjs": "node ./build-cjs.js && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:cjs": "node ./build-cjs.js && echo {\"type\": \"commonjs\"} > ./dist/cjs/package.json",
     "build:esm": "mkdir \"./dist/esm\" && cp -R \"./src/\" \"./dist/esm/\"",
     "build:browser": "node ./build-browser-bundles.js",
     "publish": "npm run build && npm publish",
