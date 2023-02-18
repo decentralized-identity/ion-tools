@@ -20,7 +20,7 @@
     "build:cjs": "node ./build-cjs.js && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:esm": "mkdir -p ./dist/esm && cp -R ./src/ ./dist/esm/",
     "build:browser": "node ./build-browser-bundles.js",
-    "pooblish": "npm run build && npm publish",
+    "publish": "npm run build && npm publish",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix"
   },
