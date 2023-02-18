@@ -8,14 +8,19 @@
   },
   "license": "Apache-2.0",
   "type": "module",
-  "main": "./src/index.js",
-  "exports": "./src/index.js",
-  "browser": {
-    "./src/index.js": "./dist/browser-bundle.js"
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    "require": "./dist/cjs/index.js",
+    "import": "./dist/esm/index.js"
   },
   "scripts": {
-    "bundle": "rm -rf ./dist && node ./bundle.js",
-    "publish": "npm run bundle && npm publish",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:browser",
+    "build:cjs": "node ./build-cjs.js && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:esm": "mkdir -p ./dist/esm && cp -R ./src/ ./dist/esm/",
+    "build:browser": "node ./build-browser-bundles.js",
+    "publish": "npm run build && npm publish",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix"
   },
@@ -24,15 +29,14 @@
     "eslint": "8.30.0"
   },
   "dependencies": {
-    "multiformats": "9.6.4",
+    "@decentralized-identity/ion-sdk": "0.6.0",
     "@noble/ed25519": "1.6.0",
     "@noble/secp256k1": "1.5.5",
-    "@decentralized-identity/ion-sdk": "0.6.0",
     "cross-fetch": "3.1.5",
-    "ion-pow-sdk": "1.0.16"
+    "ion-pow-sdk": "1.0.16",
+    "multiformats": "9.6.4"
   },
   "files": [
-    "src",
     "dist"
   ],
   "bugs": {

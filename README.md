@@ -7,7 +7,7 @@ This repo includes tools and utilities to make working with the ION network and 
 npm install @decentralized-identity/ion-tools
 ```
 
->💡 Note: Browser bundle is included in package. your bundling tool should automatically pick it up if it adheres to the `browser` property in `package.json`
+>💡 Note: Browser bundles are included in package under `dist/browser`.
 
 ## Usage
 
