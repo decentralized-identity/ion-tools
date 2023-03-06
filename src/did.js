@@ -6,9 +6,11 @@ export class DID {
   #opQueue = Promise.resolve();
   #longForm;
   #longFormPromise;
+  #generateKeyPair;
 
   constructor(options = { }) {
     this.#ops = options.ops || [ ];
+    this.#generateKeyPair = options.generateKeyPair || generateKeyPair;
     if (!this.#ops.length) {
       this.#ops.push(this.generateOperation('create', options.content || { }, false));
     }
@@ -41,10 +43,10 @@ export class DID {
       }, this.#ops[0]);
     }
     if (type === 'create' || type === 'recover') {
-      op.recovery = await generateKeyPair();
+      op.recovery = await this.#generateKeyPair();
     }
     if (type !== 'deactivate') {
-      op.update = await generateKeyPair();
+      op.update = await this.#generateKeyPair();
     }
     if (commit) {
       this.#ops.push(op);
