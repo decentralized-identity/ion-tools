@@ -68,7 +68,10 @@ export class DID {
       case 'update':
         return IonRequest.createUpdateRequest({
           didSuffix: await this.getSuffix(),
-          signer: options.signer || LocalSigner.create(op.previous.update.privateJwk),
+          signer:
+            options.signer ||
+            options.signerFactory(op.previous.update.privateJwk) ||
+            LocalSigner.create(op.previous.update.privateJwk),
           updatePublicKey: op.previous.update.publicJwk,
           nextUpdatePublicKey: op.update.publicJwk,
           servicesToAdd: op.content?.addServices,
@@ -80,7 +83,10 @@ export class DID {
       case 'recover':
         return IonRequest.createRecoverRequest({
           didSuffix: await this.getSuffix(),
-          signer: options.signer || LocalSigner.create(op.previous.recovery.privateJwk),
+          signer:
+            options.signer ||
+            options.signerFactory(op.previous.recovery.privateJwk) ||
+            LocalSigner.create(op.previous.recovery.privateJwk),
           recoveryPublicKey: op.previous.recovery.publicJwk,
           nextRecoveryPublicKey: op.recovery.publicJwk,
           nextUpdatePublicKey: op.update.publicJwk,
@@ -91,7 +97,10 @@ export class DID {
         return IonRequest.createDeactivateRequest({
           didSuffix: await this.getSuffix(),
           recoveryPublicKey: op.previous.recovery.publicJwk,
-          signer: options.signer || LocalSigner.create(op.previous.recovery.privateJwk)
+          signer:
+            options.signer ||
+            options.signerFactory(op.previous.recovery.privateJwk) ||
+            LocalSigner.create(op.previous.recovery.privateJwk)
         });
 
       case 'create':
