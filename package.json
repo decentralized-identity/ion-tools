@@ -9,10 +9,10 @@
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
+  "module": "./dist/esm/src/index.js",
   "exports": {
     "require": "./dist/cjs/index.js",
-    "import": "./dist/esm/index.js"
+    "import": "./dist/esm/src/index.js"
   },
   "scripts": {
     "clean": "rm -rf ./dist",
