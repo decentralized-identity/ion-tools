@@ -31,10 +31,10 @@
   },
   "dependencies": {
     "@decentralized-identity/ion-sdk": "0.6.0",
+    "@decentralized-identity/ion-pow-sdk": "1.0.17",
     "@noble/ed25519": "1.6.0",
     "@noble/secp256k1": "1.5.5",
     "cross-fetch": "3.1.5",
-    "ion-pow-sdk": "1.0.16",
     "multiformats": "9.6.4"
   },
   "files": [

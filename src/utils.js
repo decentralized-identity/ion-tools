@@ -1,5 +1,5 @@
 import crossFetch from 'cross-fetch';
-import ProofOfWorkSDK from 'ion-pow-sdk';
+import ProofOfWorkSDK from '@decentralized-identity/ion-pow-sdk';
 
 import * as ed25519 from '@noble/ed25519';
 import * as secp256k1 from '@noble/secp256k1';
