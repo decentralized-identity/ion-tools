@@ -1,7 +1,12 @@
 module.exports = {
+  parser: '@babel/eslint-parser', // For by supporting "import assert" syntax (see: https://github.com/eslint/eslint/discussions/15305)
   parserOptions: {
-    ecmaVersion: 'latest', // Allows the use of modern ECMAScript features
-    sourceType : 'module', // Allows for the use of imports
+    requireConfigFile: false,
+    babelOptions: {
+      plugins: [
+        '@babel/plugin-syntax-import-assertions'
+      ],
+    },
   },
   env: {
     node: true, // Enable Node.js global variables

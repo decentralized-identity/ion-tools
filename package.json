@@ -1,6 +1,6 @@
 {
   "name": "@decentralized-identity/ion-tools",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
   "repository": {
     "type": "git",
@@ -22,20 +22,25 @@
     "build:browser": "node ./build-browser-bundles.js",
     "publish": "npm run build && npm publish",
     "lint": "eslint . --max-warnings 0",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "mocha \"tests/*.spec.js\""
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.22.5",
+    "@babel/plugin-syntax-import-assertions": "^7.22.5",
     "esbuild": "0.16.10",
-    "eslint": "8.30.0",
-    "mkdirp": "2.1.3"
+    "eslint": "^8.43.0",
+    "mkdirp": "2.1.3",
+    "mocha": "^10.2.0"
   },
   "dependencies": {
-    "@decentralized-identity/ion-sdk": "0.6.0",
-    "@decentralized-identity/ion-pow-sdk": "1.0.17",
-    "@noble/ed25519": "1.6.0",
-    "@noble/secp256k1": "1.5.5",
-    "cross-fetch": "3.1.5",
-    "multiformats": "9.6.4"
+    "@decentralized-identity/ion-pow-sdk": "^1.0.17",
+    "@decentralized-identity/ion-sdk": "^1.0.1",
+    "@noble/ed25519": "^2.0.0",
+    "@noble/secp256k1": "^2.0.0",
+    "chai": "^4.3.7",
+    "cross-fetch": "^3.1.6",
+    "multiformats": "^12.0.1"
   },
   "files": [
     "dist"
@@ -51,7 +56,7 @@
   ],
   "author": "Decentralized Identity Foundation",
   "engines": {
-    "node": ">= 16"
+    "node": ">= 18"
   },
   "engineStrict": true
 }
