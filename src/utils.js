@@ -68,19 +68,14 @@ export async function generateKeyPair(type = 'secp256k1') {
  */
 export async function sign(params = { }) {
   const { header = { }, payload, privateJwk } = params;
-  let signer;
-  let signerOpts;
 
   switch (privateJwk.crv) {
     case 'Ed25519':
       header.alg = 'EdDSA';
-      signer = ed25519;
       break;
 
     case 'secp256k1':
       header.alg = 'ES256K';
-      signer = secp256k1;
-      signerOpts = { der: false };
       break;
 
     default:
@@ -107,7 +102,15 @@ export async function sign(params = { }) {
 
   const privateKeyBytes = base64url.baseDecode(privateJwk.d);
 
-  const signatureBytes = await signer.sign(messageBytes, privateKeyBytes, signerOpts);
+  // sign the actual payload
+  let signatureBytes;
+  if (privateJwk.crv === 'Ed25519') {
+    signatureBytes = await ed25519.signAsync(messageBytes, privateKeyBytes);
+  }
+  else if (privateJwk.crv === 'secp256k1') {
+    const signature = await secp256k1.signAsync(messageBytes, privateKeyBytes);
+    signatureBytes = signature.toCompactRawBytes();
+  }
   const signature = base64url.baseEncode(signatureBytes);
 
   return `${message}.${signature}`;
@@ -151,7 +154,7 @@ export async function verify(params = { }) {
     case 'Ed25519': {
       const publicKeyBytes = base64url.baseDecode(publicJwk.x);
 
-      return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
+      return ed25519.verifyAsync(signatureBytes, messageBytes, publicKeyBytes);
     }
 
     default:
