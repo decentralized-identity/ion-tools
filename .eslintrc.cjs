@@ -1,5 +1,5 @@
 module.exports = {
-  parser: '@babel/eslint-parser', // For by supporting "import assert" syntax (see: https://github.com/eslint/eslint/discussions/15305)
+  parser: '@babel/eslint-parser', // For supporting "import assert" syntax (see: https://github.com/eslint/eslint/discussions/15305)
   parserOptions: {
     requireConfigFile: false,
     babelOptions: {
