@@ -1,6 +1,6 @@
 {
   "name": "@decentralized-identity/ion-tools",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "ION Tools - utilities to make working with the ION network and using ION DIDs easy peasy lemon squeezy",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
     "clean": "rimraf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:browser",
     "build:cjs": "node ./build-cjs.js && echo {\"type\": \"commonjs\"} > ./dist/cjs/package.json",
-    "build:esm": "mkdirp \"./dist/esm\" && cp -R \"./src/\" \"./dist/esm/\"",
+    "build:esm": "mkdirp ./dist/esm && cp -R ./src/* ./dist/esm/",
     "build:browser": "node ./build-browser-bundles.js",
     "publish": "npm run build && npm publish",
     "lint": "eslint . --max-warnings 0",
