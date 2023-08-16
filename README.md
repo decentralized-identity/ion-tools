@@ -458,7 +458,7 @@ The `anchor` function is used to submit an ION operation for anchoring with an I
 ```javascript
 const did = new DID();
 const anchorRequest = await did.generateRequest();
-const respone = await anchor(anchorRequest);
+const response = await anchor(anchorRequest);
 ```
 
 > NOTE: The `requestBody` value above is the JSON representation of the ION operation produced by the DID class's `generateRequest()` function.
