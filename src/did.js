@@ -12,7 +12,7 @@ export class DID {
     this.#ops = options.ops || [ ];
     this.#generateKeyPair = options.generateKeyPair || generateKeyPair;
     if (!this.#ops.length) {
-      this.#ops.push(this.generateOperation('create', options.content || { }, false));
+      this.generateOperation('create', options.content || { }, true);
     }
   }
 
@@ -128,7 +128,7 @@ export class DID {
    *
    * // returns: EiCZws6U61LV3YmvxmOIlt4Ap5RSJdIkb_lJXhuUPqQYBg
    * did.getSuffix()
-   * @returns {string} suffix
+   * @returns {Promise<string>} suffix
    */
   async getSuffix() {
     const uri = await this.getURI('short');
