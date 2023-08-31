@@ -2,6 +2,10 @@
 
 This repo includes tools and utilities to make working with the ION network and using ION DIDs easy for developers integrating DIDs into their apps and services. The packages within are geared toward making interactions with ION maximally accessible for developers, with a primary focus on making their functionality dually available in both client Web and server environments.
 
+## FAQ
+### Resolving
+When using this tool as is and default mode, you will use the microsoft node. The resolving of the short form DID will take time to propagate through the bitcoin network as Microsoft is batching up their transactions to distribute the cost. Read more here: https://github.com/decentralized-identity/ion/issues/195
+
 ## Installation
 ```bash
 npm install @decentralized-identity/ion-tools
