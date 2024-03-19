@@ -183,8 +183,7 @@ export async function resolve(didUri, options = { }) {
 
 export async function anchor(anchorRequest, options = { }) {
   const {
-    challengeEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/proof-of-work-challenge',
-    solutionEndpoint = 'https://beta.ion.msidentity.com/api/v1.0/operations'
+    challengeEndpoint, solutionEndpoint
   } = options;
 
   return ProofOfWorkSDK.submitIonRequest(challengeEndpoint, solutionEndpoint, JSON.stringify(anchorRequest));
