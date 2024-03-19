@@ -450,10 +450,8 @@ The `anchor` function is used to submit an ION operation for anchoring with an I
 
 1. `REQUEST_BODY` - Object, *required*
 2. `OPTIONS` - Object, *optional*: An object for passing the following options used in the resolution request:
-    - `challengeEndpoint` - URI String, *optional*: URI of the challenge endpoint for the ION node you are submitting to.
-    - `solutionEndpoint` - URI String, *optional*: URI of the solution endpoint for the ION node you are submitting your completed challenge to.
-
-> NOTE: Endpoint URIs will default to `https://beta.ion.msidentity.com` if not supplied
+    - `challengeEndpoint` - URI String, *required*: URI of the challenge endpoint for the ION node you are submitting to.
+    - `solutionEndpoint` - URI String, *required*: URI of the solution endpoint for the ION node you are submitting your completed challenge to.
 
 ```javascript
 const did = new DID();
